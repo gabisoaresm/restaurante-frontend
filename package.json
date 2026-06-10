@@ -1,0 +1,25 @@
+{
+  "name": "restaurante-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gabisoaresm/restaurante-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/gabisoaresm/restaurante-frontend/issues"
+  },
+  "homepage": "https://github.com/gabisoaresm/restaurante-frontend#readme",
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

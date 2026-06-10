@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "strict": true,
+    "rootDir": "./typescript",
+    "outDir": "./public/javascript"
+  },
+  "include": ["typescript/**/*"]
+}

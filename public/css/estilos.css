@@ -1,0 +1,232 @@
+/* === Reset e variáveis === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --vermelho:        #8B1A1A;
+  --vermelho-escuro: #6B1414;
+  --texto:           #1a1a1a;
+  --fundo:           #f5f0eb;
+  --branco:          #ffffff;
+  --borda:           #ddd;
+  --erro:            #c0392b;
+  --raio:            6px;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+  min-height: 100vh;
+}
+
+/* === Cabeçalho === */
+#cabecalho {
+  background: var(--vermelho);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.cabecalho-interno {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Logo — link sem sublinhado, fonte maior */
+.logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+/* Links de navegação */
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex: 1;
+}
+
+nav a {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+nav a:hover {
+  color: #fff;
+}
+
+/* Botão de logout dentro do nav */
+#btn-logout {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 0.3rem 0.9rem;
+  border-radius: var(--raio);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+#btn-logout:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* Info do usuário logado — empurrada para a direita */
+.usuario-info {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  flex-shrink: 0;
+}
+
+/* === Layout principal === */
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+/* === Formulários === */
+.caixa-formulario {
+  max-width: 420px;
+  margin: 0 auto;
+  background: var(--branco);
+  border-radius: var(--raio);
+  padding: 2rem 2.5rem;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.09);
+}
+
+.caixa-formulario h1 {
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+  color: var(--vermelho);
+}
+
+.campo {
+  margin-bottom: 1.1rem;
+}
+
+.campo label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.campo input {
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.campo input:focus {
+  border-color: var(--vermelho);
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.25rem;
+  background: var(--vermelho);
+  color: #fff;
+  border: none;
+  border-radius: var(--raio);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button[type="submit"]:hover {
+  background: var(--vermelho-escuro);
+}
+
+/* Mensagem de erro do formulário */
+.erro {
+  color: var(--erro);
+  font-size: 0.875rem;
+  min-height: 1.2em;
+  margin-bottom: 0.4rem;
+}
+
+/* Links secundários abaixo do formulário */
+.link-secundario {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.link-secundario a {
+  color: var(--vermelho);
+  text-decoration: none;
+}
+
+.link-secundario a:hover {
+  text-decoration: underline;
+}
+
+/* === Seção hero (página inicial) === */
+.hero {
+  text-align: center;
+  padding: 5rem 1rem;
+}
+
+.hero h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.75rem;
+  color: var(--vermelho);
+}
+
+.hero p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 2rem;
+}
+
+.botao-primario {
+  display: inline-block;
+  padding: 0.85rem 2.2rem;
+  background: var(--vermelho);
+  color: #fff;
+  text-decoration: none;
+  border-radius: var(--raio);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.botao-primario:hover {
+  background: var(--vermelho-escuro);
+}
+
+/* === Páginas em construção (placeholders) === */
+.placeholder {
+  text-align: center;
+  padding: 5rem 1rem;
+  color: #999;
+}
+
+.placeholder h2 {
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+  color: #bbb;
+}

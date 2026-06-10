@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Entrar — Restaurante</title>
+  <title>Redefinir Senha — Restaurante</title>
   <link rel="stylesheet" href="css/estilos.css" />
 </head>
 <body>
@@ -11,25 +11,29 @@
 
   <main class="container">
     <section class="caixa-formulario">
-      <h1>Entrar</h1>
-      <form id="form-login" novalidate>
+      <h1>Redefinir Senha</h1>
+      <p class="descricao-formulario">
+        Cole o token recebido por e-mail e escolha sua nova senha.
+      </p>
+      <form id="form-redefinir-senha" novalidate>
         <div class="campo">
-          <label for="username">Usuário</label>
-          <input type="text" id="username" name="username" required autofocus />
+          <label for="token">Token recebido por e-mail</label>
+          <input type="text" id="token" name="token" required autofocus
+                 placeholder="Cole o token aqui" />
         </div>
         <div class="campo">
-          <label for="password">Senha</label>
+          <label for="password">Nova senha</label>
           <input type="password" id="password" name="password" required />
         </div>
-        <p id="mensagem-sucesso" class="sucesso"></p>
+        <div class="campo">
+          <label for="password_confirm">Confirmar nova senha</label>
+          <input type="password" id="password_confirm" name="password_confirm" required />
+        </div>
         <p id="mensagem-erro" class="erro"></p>
-        <button type="submit">Entrar</button>
+        <button type="submit">Redefinir senha</button>
       </form>
       <p class="link-secundario">
-        Não tem conta? <a href="registro.html">Registre-se</a>
-      </p>
-      <p class="link-secundario">
-        <a href="esqueci-senha.html">Esqueci minha senha</a>
+        <a href="esqueci-senha.html">Solicitar novo token</a>
       </p>
     </section>
   </main>
@@ -38,6 +42,6 @@
   <script src="javascript/constantes.js"></script>
   <script src="javascript/autenticacao.js"></script>
   <script src="javascript/logout.js"></script>
-  <script src="javascript/login.js"></script>
+  <script src="javascript/redefinir-senha.js"></script>
 </body>
 </html>

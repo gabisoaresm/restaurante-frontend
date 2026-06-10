@@ -10,14 +10,52 @@
   <header id="cabecalho"></header>
 
   <main class="container">
-    <div class="placeholder">
-      <h2>Registrar</h2>
-      <p>Em construção — disponível na próxima fase.</p>
-    </div>
+    <section class="caixa-formulario">
+      <h1>Criar conta</h1>
+      <form id="form-registro" novalidate>
+        <div class="campo">
+          <label for="username">Usuário *</label>
+          <input type="text" id="username" name="username" required autofocus />
+        </div>
+        <div class="campo">
+          <label for="first_name">Nome *</label>
+          <input type="text" id="first_name" name="first_name" required />
+        </div>
+        <div class="campo">
+          <label for="last_name">Sobrenome *</label>
+          <input type="text" id="last_name" name="last_name" required />
+        </div>
+        <div class="campo">
+          <label for="email">E-mail *</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="campo">
+          <label for="password">Senha *</label>
+          <input type="password" id="password" name="password" required />
+          <ul class="regras-senha">
+            <li>Mínimo de 8 caracteres</li>
+            <li>Não pode ser inteiramente numérica</li>
+            <li>Não pode ser uma senha muito comum (ex.: "12345678")</li>
+            <li>Não pode ser muito parecida com seu usuário ou e-mail</li>
+          </ul>
+        </div>
+        <div class="campo">
+          <label for="password_confirm">Confirmar senha *</label>
+          <input type="password" id="password_confirm" name="password_confirm" required />
+        </div>
+        <p id="mensagem-erro" class="erro"></p>
+        <button type="submit">Criar conta</button>
+      </form>
+      <p class="link-secundario">
+        Já tem conta? <a href="login.html">Entrar</a>
+      </p>
+    </section>
   </main>
 
+  <!-- Ordem de inclusão garante que constantes e autenticacao estejam disponíveis globalmente -->
   <script src="javascript/constantes.js"></script>
   <script src="javascript/autenticacao.js"></script>
   <script src="javascript/logout.js"></script>
+  <script src="javascript/registro.js"></script>
 </body>
 </html>

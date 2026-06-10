@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
     "target": "es2018",
-    "module": "none",
-    "ignoreDeprecations": "6.0",
     "lib": ["es2018", "dom"],
     "strict": true,
     "rootDir": "./typescript",

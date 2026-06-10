@@ -167,6 +167,37 @@ button[type="submit"]:hover {
   margin-bottom: 0.4rem;
 }
 
+/* Mensagem de sucesso do formulário */
+.sucesso {
+  color: #1a7a3c;
+  font-size: 0.875rem;
+  min-height: 1.2em;
+  margin-bottom: 0.4rem;
+}
+
+/* Texto descritivo acima do formulário */
+.descricao-formulario {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 1.2rem;
+}
+
+/* Indicação de campo opcional ao lado do label */
+.campo-opcional {
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Lista de regras de senha exibida abaixo do campo de senha */
+.regras-senha {
+  list-style: disc;
+  margin: 0.4rem 0 0 1.2rem;
+  font-size: 0.8rem;
+  color: #666;
+  line-height: 1.5;
+}
+
 /* Links secundários abaixo do formulário */
 .link-secundario {
   text-align: center;

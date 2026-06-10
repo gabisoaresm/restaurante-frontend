@@ -10,14 +10,32 @@
   <header id="cabecalho"></header>
 
   <main class="container">
-    <div class="placeholder">
-      <h2>Trocar Senha</h2>
-      <p>Em construção — disponível na próxima fase.</p>
-    </div>
+    <section class="caixa-formulario">
+      <h1>Trocar Senha</h1>
+      <form id="form-trocar-senha" novalidate>
+        <div class="campo">
+          <label for="old_password">Senha atual</label>
+          <input type="password" id="old_password" name="old_password" required autofocus />
+        </div>
+        <div class="campo">
+          <label for="new_password1">Nova senha</label>
+          <input type="password" id="new_password1" name="new_password1" required />
+        </div>
+        <div class="campo">
+          <label for="new_password2">Confirmar nova senha</label>
+          <input type="password" id="new_password2" name="new_password2" required />
+        </div>
+        <p id="mensagem-erro" class="erro"></p>
+        <p id="mensagem-sucesso" class="sucesso"></p>
+        <button type="submit">Salvar nova senha</button>
+      </form>
+    </section>
   </main>
 
+  <!-- Ordem de inclusão garante que constantes e autenticacao estejam disponíveis globalmente -->
   <script src="javascript/constantes.js"></script>
   <script src="javascript/autenticacao.js"></script>
   <script src="javascript/logout.js"></script>
+  <script src="javascript/trocar-senha.js"></script>
 </body>
 </html>

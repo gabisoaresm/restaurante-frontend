@@ -3,21 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Esqueci a Senha — Restaurante</title>
+  <title>Recuperar Senha — Restaurante</title>
   <link rel="stylesheet" href="css/estilos.css" />
 </head>
 <body>
   <header id="cabecalho"></header>
 
   <main class="container">
-    <div class="placeholder">
-      <h2>Recuperar Senha</h2>
-      <p>Em construção — disponível na próxima fase.</p>
-    </div>
+    <section class="caixa-formulario">
+      <h1>Recuperar Senha</h1>
+      <p class="descricao-formulario">
+        Informe seu e-mail cadastrado. Você receberá um token para redefinir sua senha.
+      </p>
+      <form id="form-esqueci-senha" novalidate>
+        <div class="campo">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" name="email" required autofocus />
+        </div>
+        <p id="mensagem-erro" class="erro"></p>
+        <p id="mensagem-sucesso" class="sucesso"></p>
+        <button type="submit">Enviar token</button>
+      </form>
+      <p class="link-secundario">
+        Lembrou a senha? <a href="login.html">Entrar</a>
+      </p>
+      <p class="link-secundario">
+        Já tem o token? <a href="redefinir-senha.html">Redefinir senha</a>
+      </p>
+    </section>
   </main>
 
+  <!-- Ordem de inclusão garante que constantes e autenticacao estejam disponíveis globalmente -->
   <script src="javascript/constantes.js"></script>
   <script src="javascript/autenticacao.js"></script>
   <script src="javascript/logout.js"></script>
+  <script src="javascript/esqueci-senha.js"></script>
 </body>
 </html>

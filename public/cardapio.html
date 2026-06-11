@@ -12,14 +12,43 @@
   <header id="cabecalho"></header>
 
   <main class="container mt-4">
-    <div class="placeholder">
-      <h2>Cardápio</h2>
-      <p>Em construção — disponível na próxima fase.</p>
+
+    <!-- Cabeçalho da seção com botões de ação visíveis apenas para gerente -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+      <div>
+        <h2 class="fw-semibold mb-0">Cardápio</h2>
+        <p class="text-muted small mb-0">Explore nossos pratos e bebidas</p>
+      </div>
+      <div id="acoes-gerente" class="d-none d-flex gap-2 flex-shrink-0 ms-3">
+        <a href="gerenciar-categorias.html" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-tags me-1"></i>Categorias
+        </a>
+        <a href="criar-item.html" class="btn btn-danger btn-sm">
+          <i class="bi bi-plus-lg me-1"></i>Novo Item
+        </a>
+      </div>
     </div>
+
+    <!-- Pills de filtro por categoria — populados via JavaScript -->
+    <div id="filtros-categoria" class="d-flex flex-wrap gap-2 mb-4"></div>
+
+    <!-- Indicador de carregamento -->
+    <div id="carregando" class="text-center py-5 text-muted">
+      <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+      Carregando cardápio…
+    </div>
+
+    <!-- Mensagem de erro global -->
+    <p id="mensagem-erro" class="erro text-center"></p>
+
+    <!-- Seções por categoria — populadas via JavaScript -->
+    <div id="lista-itens"></div>
+
   </main>
 
   <script src="javascript/constantes.js"></script>
   <script src="javascript/autenticacao.js"></script>
   <script src="javascript/logout.js"></script>
+  <script src="javascript/cardapio.js"></script>
 </body>
 </html>

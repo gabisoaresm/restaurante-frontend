@@ -114,8 +114,9 @@ nav a:hover {
   --bs-btn-disabled-border-color: var(--vermelho);
 }
 
-/* Foco de inputs usa vermelho em vez do azul padrão do Bootstrap */
-.form-control:focus {
+/* Foco de inputs e selects usa vermelho em vez do azul padrão do Bootstrap */
+.form-control:focus,
+.form-select:focus {
   border-color: var(--vermelho);
   box-shadow: 0 0 0 0.2rem rgba(139, 26, 26, 0.2);
 }
@@ -125,15 +126,16 @@ nav a:hover {
   border-color: var(--vermelho);
 }
 
-/* Destaque de erro de validação: borda vermelha no ícone e no campo */
+/* Destaque de erro de validação: borda vermelha no ícone, campo e select */
 .campo-invalido .input-group-text,
-.campo-invalido .form-control {
+.campo-invalido .form-control,
+.campo-invalido .form-select {
   border-color: var(--erro);
 }
 
 /* Destaque de erro para inputs sem Bootstrap (páginas sem form-control) */
 .campo-invalido input:not(.form-control),
-.campo-invalido select:not(.form-control),
+.campo-invalido select:not(.form-select):not(.form-control),
 .campo-invalido textarea:not(.form-control) {
   border-color: var(--erro);
 }

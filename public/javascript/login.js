@@ -21,13 +21,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const msgErro = document.getElementById("mensagem-erro");
     if (!form)
         return;
+    const btn = form.querySelector("button[type='submit']");
+    // Remove destaque de erro do campo quando o usuário começa a digitar novamente
+    form.querySelectorAll(".campo input").forEach(input => {
+        input.addEventListener("input", () => {
+            var _a;
+            (_a = input.closest(".campo")) === null || _a === void 0 ? void 0 : _a.classList.remove("campo-invalido");
+        });
+    });
     form.addEventListener("submit", async (evento) => {
+        var _a, _b;
         evento.preventDefault();
-        // Limpa mensagem de erro anterior antes de nova tentativa
         if (msgErro)
             msgErro.textContent = "";
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value;
+        const campoUsername = document.getElementById("username");
+        const campoPassword = document.getElementById("password");
+        const username = campoUsername.value.trim();
+        const password = campoPassword.value;
+        // Validação local: destaca visualmente os campos deixados em branco
+        let invalido = false;
+        if (!username) {
+            (_a = campoUsername.closest(".campo")) === null || _a === void 0 ? void 0 : _a.classList.add("campo-invalido");
+            invalido = true;
+        }
+        if (!password) {
+            (_b = campoPassword.closest(".campo")) === null || _b === void 0 ? void 0 : _b.classList.add("campo-invalido");
+            invalido = true;
+        }
+        if (invalido) {
+            if (msgErro)
+                msgErro.textContent = "Preencha todos os campos.";
+            return;
+        }
+        // Desabilita o botão durante a requisição para evitar envios duplicados
+        btn.disabled = true;
+        btn.textContent = "Entrando…";
         try {
             const resposta = await fetch(`${BASE_URL}/api/accounts/token-auth/`, {
                 method: "POST",
@@ -52,9 +80,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     msgErro.textContent = "Erro ao fazer login. Tente novamente.";
             }
         }
-        catch (_a) {
+        catch (_c) {
             if (msgErro)
                 msgErro.textContent = "Não foi possível conectar ao servidor.";
+        }
+        finally {
+            btn.disabled = false;
+            btn.textContent = "Entrar";
         }
     });
 });

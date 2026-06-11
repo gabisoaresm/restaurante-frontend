@@ -1,9 +1,11 @@
-/* === Reset e variáveis === */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/*
+ * estilos.css — Estilos personalizados do sistema de restaurante.
+ * Complementa o Bootstrap 5 com ajustes específicos do projeto.
+ * Não redefine classes base do Bootstrap (container, form-control, btn, etc.).
+ */
+
+
+/* ── Variáveis de marca ───────────────────────────────────────────────────── */
 
 :root {
   --vermelho:        #8B1A1A;
@@ -14,16 +16,24 @@
   --borda:           #ddd;
   --erro:            #c0392b;
   --raio:            6px;
+  --raio-card:       12px;
 }
+
+
+/* ── Corpo da página ──────────────────────────────────────────────────────── */
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: var(--fundo);
   color: var(--texto);
   min-height: 100vh;
+  line-height: 1.6;
+  padding-bottom: 40px;
 }
 
-/* === Cabeçalho === */
+
+/* ── Cabeçalho ────────────────────────────────────────────────────────────── */
+
 #cabecalho {
   background: var(--vermelho);
   color: #fff;
@@ -40,7 +50,6 @@ body {
   gap: 2rem;
 }
 
-/* Logo — link sem sublinhado, fonte maior */
 .logo {
   font-size: 1.25rem;
   font-weight: 700;
@@ -50,7 +59,6 @@ body {
   flex-shrink: 0;
 }
 
-/* Links de navegação */
 nav {
   display: flex;
   align-items: center;
@@ -69,7 +77,6 @@ nav a:hover {
   color: #fff;
 }
 
-/* Botão de logout dentro do nav */
 #btn-logout {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
@@ -85,7 +92,6 @@ nav a:hover {
   background: rgba(255, 255, 255, 0.28);
 }
 
-/* Info do usuário logado — empurrada para a direita */
 .usuario-info {
   margin-left: auto;
   font-size: 0.85rem;
@@ -93,73 +99,48 @@ nav a:hover {
   flex-shrink: 0;
 }
 
-/* === Layout principal === */
-.container {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+
+/* ── Adaptações do Bootstrap à paleta do restaurante ─────────────────────── */
+
+/* btn-danger usa o vermelho da marca em vez do vermelho padrão do Bootstrap */
+.btn-danger {
+  --bs-btn-bg: var(--vermelho);
+  --bs-btn-border-color: var(--vermelho);
+  --bs-btn-hover-bg: var(--vermelho-escuro);
+  --bs-btn-hover-border-color: var(--vermelho-escuro);
+  --bs-btn-active-bg: var(--vermelho-escuro);
+  --bs-btn-active-border-color: var(--vermelho-escuro);
+  --bs-btn-disabled-bg: var(--vermelho);
+  --bs-btn-disabled-border-color: var(--vermelho);
 }
 
-/* === Formulários === */
-.caixa-formulario {
-  max-width: 420px;
-  margin: 0 auto;
-  background: var(--branco);
-  border-radius: var(--raio);
-  padding: 2rem 2.5rem;
-  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.09);
+/* Foco de inputs usa vermelho em vez do azul padrão do Bootstrap */
+.form-control:focus {
+  border-color: var(--vermelho);
+  box-shadow: 0 0 0 0.2rem rgba(139, 26, 26, 0.2);
 }
 
-.caixa-formulario h1 {
-  font-size: 1.6rem;
-  margin-bottom: 1.5rem;
-  color: var(--vermelho);
-}
-
-.campo {
-  margin-bottom: 1.1rem;
-}
-
-.campo label {
-  display: block;
-  margin-bottom: 0.35rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.campo input {
-  width: 100%;
-  padding: 0.6rem 0.85rem;
-  border: 1px solid var(--borda);
-  border-radius: var(--raio);
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.campo input:focus {
+/* No input-group, a borda do ícone acompanha o foco */
+.input-group:focus-within .input-group-text {
   border-color: var(--vermelho);
 }
 
-button[type="submit"] {
-  width: 100%;
-  padding: 0.75rem;
-  margin-top: 0.25rem;
-  background: var(--vermelho);
-  color: #fff;
-  border: none;
-  border-radius: var(--raio);
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
+/* Destaque de erro de validação: borda vermelha no ícone e no campo */
+.campo-invalido .input-group-text,
+.campo-invalido .form-control {
+  border-color: var(--erro);
 }
 
-button[type="submit"]:hover {
-  background: var(--vermelho-escuro);
+/* Destaque de erro para inputs sem Bootstrap (páginas sem form-control) */
+.campo-invalido input:not(.form-control),
+.campo-invalido select:not(.form-control),
+.campo-invalido textarea:not(.form-control) {
+  border-color: var(--erro);
 }
 
-/* Mensagem de erro do formulário */
+
+/* ── Mensagens de feedback inline nos formulários ─────────────────────────── */
+
 .erro {
   color: var(--erro);
   font-size: 0.875rem;
@@ -167,7 +148,6 @@ button[type="submit"]:hover {
   margin-bottom: 0.4rem;
 }
 
-/* Mensagem de sucesso do formulário */
 .sucesso {
   color: #1a7a3c;
   font-size: 0.875rem;
@@ -175,21 +155,9 @@ button[type="submit"]:hover {
   margin-bottom: 0.4rem;
 }
 
-/* Texto descritivo acima do formulário */
-.descricao-formulario {
-  font-size: 0.9rem;
-  color: #555;
-  margin-bottom: 1.2rem;
-}
 
-/* Indicação de campo opcional ao lado do label */
-.campo-opcional {
-  font-weight: 400;
-  font-size: 0.8rem;
-  color: #888;
-}
+/* ── Regras de senha (lista de dicas abaixo do campo) ─────────────────────── */
 
-/* Lista de regras de senha exibida abaixo do campo de senha */
 .regras-senha {
   list-style: disc;
   margin: 0.4rem 0 0 1.2rem;
@@ -198,24 +166,24 @@ button[type="submit"]:hover {
   line-height: 1.5;
 }
 
-/* Links secundários abaixo do formulário */
-.link-secundario {
-  text-align: center;
-  margin-top: 1rem;
-  font-size: 0.9rem;
-  color: #555;
+
+/* ── Dois campos lado a lado (ex: nome + sobrenome) ───────────────────────── */
+
+.campos-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
-.link-secundario a {
-  color: var(--vermelho);
-  text-decoration: none;
+@media (max-width: 400px) {
+  .campos-linha {
+    grid-template-columns: 1fr;
+  }
 }
 
-.link-secundario a:hover {
-  text-decoration: underline;
-}
 
-/* === Seção hero (página inicial) === */
+/* ── Seção hero (página inicial) ──────────────────────────────────────────── */
+
 .hero {
   text-align: center;
   padding: 5rem 1rem;
@@ -249,7 +217,126 @@ button[type="submit"]:hover {
   background: var(--vermelho-escuro);
 }
 
-/* === Páginas em construção (placeholders) === */
+
+/* ── Animação de entrada (adicionar via JS ao carregar listas) ────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+
+/* ── Cards de listagem (itens do cardápio, pedidos, etc.) ─────────────────── */
+
+.card-item {
+  background: var(--branco);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-card);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  transition: box-shadow 0.2s;
+}
+
+.card-item:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-item-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+  line-height: 1.3;
+}
+
+.card-item-info p {
+  font-size: 0.875rem;
+  color: #555;
+}
+
+.card-item-acoes {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn-acao {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  background: var(--branco);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-acao:hover {
+  border-color: var(--vermelho);
+  color: var(--vermelho);
+}
+
+.btn-acao.btn-perigo:hover {
+  background: var(--erro);
+  border-color: var(--erro);
+  color: #fff;
+}
+
+
+/* ── Badges de status de pedido ───────────────────────────────────────────── */
+
+.badge-status {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.badge-recebido   { background: #fef3c7; color: #92400e; }
+.badge-em-preparo { background: #dbeafe; color: #1e40af; }
+.badge-pronto     { background: #d1fae5; color: #065f46; }
+.badge-entregue   { background: #f3f4f6; color: #374151; }
+
+
+/* ── Tabelas de dados ─────────────────────────────────────────────────────── */
+
+.tabela-container {
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.tabela th,
+.tabela td {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--borda);
+}
+
+.tabela th {
+  font-weight: 600;
+  color: #444;
+  background: #f9f9f9;
+}
+
+.tabela tbody tr:hover {
+  background: #fafafa;
+}
+
+
+/* ── Páginas em construção (placeholders) ─────────────────────────────────── */
+
 .placeholder {
   text-align: center;
   padding: 5rem 1rem;

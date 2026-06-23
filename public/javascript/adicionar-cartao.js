@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
         inputCvv.value = inputCvv.value.replace(/\D/g, "").slice(0, 4);
     });
     form.addEventListener("submit", async (e) => {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         e.preventDefault();
         pErro.textContent = "";
         pSucesso.textContent = "";
@@ -66,6 +66,20 @@ document.addEventListener("DOMContentLoaded", () => {
         if (invalido) {
             pErro.textContent = "Preencha todos os campos obrigatórios.";
             return;
+        }
+        // Valida se a data de validade não está no passado (MM/YYYY)
+        const partesValidade = inputVal.value.trim().split("/");
+        if (partesValidade.length === 2) {
+            const mesCartao = parseInt(partesValidade[0], 10);
+            const anoCartao = parseInt(partesValidade[1], 10);
+            const hoje = new Date();
+            const anoHoje = hoje.getFullYear();
+            const mesHoje = hoje.getMonth() + 1; // getMonth() retorna 0–11
+            if (anoCartao < anoHoje || (anoCartao === anoHoje && mesCartao < mesHoje)) {
+                (_d = inputVal.closest(".campo")) === null || _d === void 0 ? void 0 : _d.classList.add("campo-invalido");
+                pErro.textContent = "A data de validade do cartão já expirou.";
+                return;
+            }
         }
         // Loading state — desabilita o botão durante o envio para evitar duplo clique
         btnSalvar.disabled = true;
@@ -99,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 btnSalvar.innerHTML = '<i class="bi bi-floppy me-1"></i>Salvar Cartão';
             }
         }
-        catch (_d) {
+        catch (_e) {
             pErro.textContent = "Não foi possível conectar ao servidor.";
             btnSalvar.disabled = false;
             btnSalvar.innerHTML = '<i class="bi bi-floppy me-1"></i>Salvar Cartão';

@@ -67,6 +67,131 @@ document.addEventListener("DOMContentLoaded", async () => {
     const divLista         = document.getElementById("lista-pedidos") as HTMLDivElement;
     const pErro            = document.getElementById("mensagem-erro") as HTMLParagraphElement;
 
+    let modalPedidoConfigurado = false;
+    let pedidoExclusaoPendente: { id: string; btn: HTMLButtonElement } | null = null;
+
+    // HTML do modal de confirmação — Bootstrap CSS only (sem bootstrap.bundle.js)
+    function htmlModalExcluirPedido(): string {
+        return `
+        <div class="modal fade" id="modal-excluir-pedido" tabindex="-1"
+             aria-labelledby="modal-excluir-pedido-titulo" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-sm border-0">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-semibold" id="modal-excluir-pedido-titulo">Excluir pedido</h5>
+                        <button type="button" class="btn-close" id="btn-fechar-modal-excluir-pedido"
+                                aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body pt-3">
+                        <p class="text-muted text-center mb-0">
+                            Deseja excluir o
+                            <strong id="modal-excluir-pedido-label"></strong>?
+                            Esta ação não pode ser desfeita.
+                        </p>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 gap-2">
+                        <button type="button" class="btn btn-outline-secondary" id="btn-cancelar-excluir-pedido">
+                            Cancelar
+                        </button>
+                        <button type="button" class="btn btn-danger" id="btn-confirmar-excluir-pedido">
+                            Excluir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade" id="backdrop-modal-excluir-pedido"></div>`;
+    }
+
+    function fecharModalExcluirPedido(): void {
+        const modal    = document.getElementById("modal-excluir-pedido");
+        const backdrop = document.getElementById("backdrop-modal-excluir-pedido");
+        if (!modal || !backdrop) return;
+        modal.classList.remove("show");
+        modal.style.display = "none";
+        modal.setAttribute("aria-hidden", "true");
+        modal.removeAttribute("aria-modal");
+        backdrop.classList.remove("show");
+        backdrop.style.display = "none";
+        document.body.classList.remove("modal-open");
+        document.body.style.removeProperty("overflow");
+        document.body.style.removeProperty("padding-right");
+        const btnConfirmar = document.getElementById("btn-confirmar-excluir-pedido") as HTMLButtonElement | null;
+        if (btnConfirmar) { btnConfirmar.disabled = false; btnConfirmar.textContent = "Excluir"; }
+        pedidoExclusaoPendente = null;
+    }
+
+    function abrirModalExcluirPedido(id: string, btn: HTMLButtonElement): void {
+        if (!document.getElementById("modal-excluir-pedido")) {
+            document.body.insertAdjacentHTML("beforeend", htmlModalExcluirPedido());
+            configurarEventosModalPedido();
+        }
+        pedidoExclusaoPendente = { id, btn };
+        const label = document.getElementById("modal-excluir-pedido-label");
+        if (label) label.textContent = `Pedido #${id}`;
+        const btnConfirmar = document.getElementById("btn-confirmar-excluir-pedido") as HTMLButtonElement | null;
+        if (btnConfirmar) { btnConfirmar.disabled = false; btnConfirmar.textContent = "Excluir"; }
+        const modal    = document.getElementById("modal-excluir-pedido");
+        const backdrop = document.getElementById("backdrop-modal-excluir-pedido");
+        if (!modal || !backdrop) return;
+        modal.classList.add("show");
+        modal.style.display = "block";
+        modal.setAttribute("aria-modal", "true");
+        modal.removeAttribute("aria-hidden");
+        backdrop.style.display = "";
+        backdrop.classList.add("show");
+        document.body.classList.add("modal-open");
+        document.body.style.overflow = "hidden";
+    }
+
+    // Remove o pedido via DELETE na API após confirmação no modal
+    async function executarExclusaoPedido(): Promise<void> {
+        if (!pedidoExclusaoPendente) return;
+        const { id, btn } = pedidoExclusaoPendente;
+        const btnConfirmar = document.getElementById("btn-confirmar-excluir-pedido") as HTMLButtonElement;
+        btnConfirmar.disabled = true;
+        btnConfirmar.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Excluindo…`;
+        btn.disabled = true;
+        try {
+            // Envia DELETE ao backend — apenas gerentes têm permissão
+            const res = await fetch(`${BASE_URL}/api/pedidos/${id}/`, {
+                method: "DELETE",
+                headers: { "Authorization": `${TOKEN_PREFIXO} ${token}` }
+            });
+            if (res.status === 204) {
+                fecharModalExcluirPedido();
+                // Remove o card do DOM sem recarregar a página toda
+                document.querySelector(`[data-pedido-id="${id}"]`)?.remove();
+            } else if (res.status === 403) {
+                pErro.textContent = "Apenas gerentes podem excluir pedidos.";
+                fecharModalExcluirPedido();
+                btn.disabled = false;
+            } else {
+                pErro.textContent = "Não foi possível excluir o pedido.";
+                fecharModalExcluirPedido();
+                btn.disabled = false;
+            }
+        } catch {
+            pErro.textContent = "Não foi possível conectar ao servidor.";
+            fecharModalExcluirPedido();
+            btn.disabled = false;
+        }
+    }
+
+    function configurarEventosModalPedido(): void {
+        if (modalPedidoConfigurado) return;
+        modalPedidoConfigurado = true;
+        document.getElementById("btn-cancelar-excluir-pedido")?.addEventListener("click", fecharModalExcluirPedido);
+        document.getElementById("btn-fechar-modal-excluir-pedido")?.addEventListener("click", fecharModalExcluirPedido);
+        document.getElementById("backdrop-modal-excluir-pedido")?.addEventListener("click", fecharModalExcluirPedido);
+        document.getElementById("btn-confirmar-excluir-pedido")?.addEventListener("click", () => { void executarExclusaoPedido(); });
+        document.addEventListener("keydown", (evento: KeyboardEvent) => {
+            if (evento.key !== "Escape") return;
+            const modal = document.getElementById("modal-excluir-pedido");
+            if (modal?.classList.contains("show")) fecharModalExcluirPedido();
+        });
+    }
+
     const statusFiltros = [
         { valor: "",           rotulo: "Todos" },
         { valor: "recebido",   rotulo: "Recebido" },
@@ -200,35 +325,11 @@ document.addEventListener("DOMContentLoaded", async () => {
             divLista.appendChild(card);
         }
 
-        // Vincula botão de excluir pedido
+        // Vincula botão de excluir pedido ao modal de confirmação
         divLista.querySelectorAll<HTMLButtonElement>(".btn-excluir-pedido").forEach(btn => {
-            btn.addEventListener("click", async () => {
+            btn.addEventListener("click", () => {
                 const id = btn.dataset["id"]!;
-                if (!confirm(`Excluir o Pedido #${id}? Esta ação não pode ser desfeita.`)) return;
-
-                btn.disabled = true;
-
-                try {
-                    // Envia DELETE ao backend — apenas gerentes têm permissão
-                    const res = await fetch(`${BASE_URL}/api/pedidos/${id}/`, {
-                        method: "DELETE",
-                        headers: { "Authorization": `${TOKEN_PREFIXO} ${token}` }
-                    });
-
-                    if (res.status === 204) {
-                        // Remove o card do DOM sem recarregar a página toda
-                        document.querySelector(`[data-pedido-id="${id}"]`)?.remove();
-                    } else if (res.status === 403) {
-                        pErro.textContent = "Apenas gerentes podem excluir pedidos.";
-                        btn.disabled = false;
-                    } else {
-                        pErro.textContent = "Não foi possível excluir o pedido.";
-                        btn.disabled = false;
-                    }
-                } catch {
-                    pErro.textContent = "Não foi possível conectar ao servidor.";
-                    btn.disabled = false;
-                }
+                abrirModalExcluirPedido(id, btn);
             });
         });
     }

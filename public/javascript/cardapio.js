@@ -108,6 +108,148 @@ document.addEventListener("DOMContentLoaded", async () => {
     const divLista = document.getElementById("lista-itens");
     const divFiltros = document.getElementById("filtros-categoria");
     const pErro = document.getElementById("mensagem-erro");
+    let modalItemConfigurado = false;
+    let itemExclusaoPendente = null;
+    // HTML do modal de confirmação — Bootstrap CSS only (sem bootstrap.bundle.js)
+    function htmlModalExcluirItem() {
+        return `
+        <div class="modal fade" id="modal-excluir-item" tabindex="-1"
+             aria-labelledby="modal-excluir-item-titulo" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-sm border-0">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-semibold" id="modal-excluir-item-titulo">Excluir item</h5>
+                        <button type="button" class="btn-close" id="btn-fechar-modal-excluir-item"
+                                aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body pt-3">
+                        <p class="text-muted text-center mb-0">
+                            Deseja excluir
+                            <strong id="modal-excluir-item-nome"></strong>
+                            do cardápio? Esta ação não pode ser desfeita.
+                        </p>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 gap-2">
+                        <button type="button" class="btn btn-outline-secondary" id="btn-cancelar-excluir-item">
+                            Cancelar
+                        </button>
+                        <button type="button" class="btn btn-danger" id="btn-confirmar-excluir-item">
+                            Excluir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade" id="backdrop-modal-excluir-item"></div>`;
+    }
+    function fecharModalExcluirItem() {
+        const modal = document.getElementById("modal-excluir-item");
+        const backdrop = document.getElementById("backdrop-modal-excluir-item");
+        if (!modal || !backdrop)
+            return;
+        modal.classList.remove("show");
+        modal.style.display = "none";
+        modal.setAttribute("aria-hidden", "true");
+        modal.removeAttribute("aria-modal");
+        backdrop.classList.remove("show");
+        backdrop.style.display = "none";
+        document.body.classList.remove("modal-open");
+        document.body.style.removeProperty("overflow");
+        document.body.style.removeProperty("padding-right");
+        const btnConfirmar = document.getElementById("btn-confirmar-excluir-item");
+        if (btnConfirmar) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.textContent = "Excluir";
+        }
+        itemExclusaoPendente = null;
+    }
+    function abrirModalExcluirItem(id, nome, btn) {
+        if (!document.getElementById("modal-excluir-item")) {
+            document.body.insertAdjacentHTML("beforeend", htmlModalExcluirItem());
+            configurarEventosModalItem();
+        }
+        itemExclusaoPendente = { id, nome, btn };
+        const span = document.getElementById("modal-excluir-item-nome");
+        if (span)
+            span.textContent = nome;
+        const btnConfirmar = document.getElementById("btn-confirmar-excluir-item");
+        if (btnConfirmar) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.textContent = "Excluir";
+        }
+        const modal = document.getElementById("modal-excluir-item");
+        const backdrop = document.getElementById("backdrop-modal-excluir-item");
+        if (!modal || !backdrop)
+            return;
+        modal.classList.add("show");
+        modal.style.display = "block";
+        modal.setAttribute("aria-modal", "true");
+        modal.removeAttribute("aria-hidden");
+        backdrop.style.display = "";
+        backdrop.classList.add("show");
+        document.body.classList.add("modal-open");
+        document.body.style.overflow = "hidden";
+    }
+    // Remove o item do cardápio via DELETE na API após confirmação no modal
+    async function executarExclusaoItem() {
+        if (!itemExclusaoPendente)
+            return;
+        const { id, btn } = itemExclusaoPendente;
+        const btnConfirmar = document.getElementById("btn-confirmar-excluir-item");
+        btnConfirmar.disabled = true;
+        btnConfirmar.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Excluindo…`;
+        btn.disabled = true;
+        try {
+            // Envia DELETE ao backend com token de gerente
+            const res = await fetch(`${BASE_URL}/api/cardapio/itens/${id}/`, {
+                method: "DELETE",
+                headers: { "Authorization": `${TOKEN_PREFIXO} ${token}` }
+            });
+            if (res.status === 204) {
+                fecharModalExcluirItem();
+                // Remove o card; se a seção ficou vazia, remove a seção inteira
+                const col = document.querySelector(`[data-item-id="${id}"]`);
+                const secao = col === null || col === void 0 ? void 0 : col.closest("section");
+                col === null || col === void 0 ? void 0 : col.remove();
+                if (secao && secao.querySelectorAll("[data-item-id]").length === 0) {
+                    secao.remove();
+                }
+            }
+            else if (res.status === 403) {
+                pErro.textContent = "Apenas gerentes podem excluir itens do cardápio.";
+                fecharModalExcluirItem();
+                btn.disabled = false;
+            }
+            else {
+                const dados = await res.json();
+                pErro.textContent = extrairErro(dados);
+                fecharModalExcluirItem();
+                btn.disabled = false;
+            }
+        }
+        catch (_a) {
+            pErro.textContent = "Não foi possível conectar ao servidor.";
+            fecharModalExcluirItem();
+            btn.disabled = false;
+        }
+    }
+    function configurarEventosModalItem() {
+        var _a, _b, _c, _d;
+        if (modalItemConfigurado)
+            return;
+        modalItemConfigurado = true;
+        (_a = document.getElementById("btn-cancelar-excluir-item")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", fecharModalExcluirItem);
+        (_b = document.getElementById("btn-fechar-modal-excluir-item")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", fecharModalExcluirItem);
+        (_c = document.getElementById("backdrop-modal-excluir-item")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", fecharModalExcluirItem);
+        (_d = document.getElementById("btn-confirmar-excluir-item")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", () => { void executarExclusaoItem(); });
+        document.addEventListener("keydown", (evento) => {
+            if (evento.key !== "Escape")
+                return;
+            const modal = document.getElementById("modal-excluir-item");
+            if (modal === null || modal === void 0 ? void 0 : modal.classList.contains("show"))
+                fecharModalExcluirItem();
+        });
+    }
     // Exibe botões de gestão apenas para gerentes autenticados
     if (tipo === "gerente") {
         (_a = document.getElementById("acoes-gerente")) === null || _a === void 0 ? void 0 : _a.classList.remove("d-none");
@@ -302,40 +444,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             divLista.appendChild(secao);
         }
-        // Vincula os botões de excluir após renderizar todas as seções (apenas gerente)
+        // Vincula os botões de excluir ao modal de confirmação (apenas gerente)
         if (tipo === "gerente") {
             divLista.querySelectorAll(".btn-excluir-item").forEach(btn => {
-                btn.addEventListener("click", async () => {
+                btn.addEventListener("click", () => {
                     const id = btn.dataset["id"];
                     const nome = btn.dataset["nome"];
-                    if (!confirm(`Excluir "${nome}" do cardápio? Esta ação não pode ser desfeita.`))
-                        return;
-                    // Envia DELETE ao backend com token de gerente
-                    try {
-                        const res = await fetch(`${BASE_URL}/api/cardapio/itens/${id}/`, {
-                            method: "DELETE",
-                            headers: { "Authorization": `${TOKEN_PREFIXO} ${token}` }
-                        });
-                        if (res.status === 204) {
-                            // Remove o card; se a seção ficou vazia, remove a seção inteira
-                            const col = document.querySelector(`[data-item-id="${id}"]`);
-                            const secao = col === null || col === void 0 ? void 0 : col.closest("section");
-                            col === null || col === void 0 ? void 0 : col.remove();
-                            if (secao && secao.querySelectorAll("[data-item-id]").length === 0) {
-                                secao.remove();
-                            }
-                        }
-                        else if (res.status === 403) {
-                            pErro.textContent = "Apenas gerentes podem excluir itens do cardápio.";
-                        }
-                        else {
-                            const dados = await res.json();
-                            pErro.textContent = extrairErro(dados);
-                        }
-                    }
-                    catch (_a) {
-                        pErro.textContent = "Não foi possível conectar ao servidor.";
-                    }
+                    abrirModalExcluirItem(id, nome, btn);
                 });
             });
         }

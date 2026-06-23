@@ -21,19 +21,44 @@
 
     <!-- Vista para visitantes não autenticados -->
     <div id="vista-visitante" class="d-none">
-      <section class="hero">
+
+      <!-- Cabeçalho compacto do restaurante (sem botões de ação) -->
+      <div class="text-center pt-4 pb-3">
         <i class="bi bi-fork-knife fs-1 d-block mb-3" style="color: var(--vermelho)"></i>
-        <h1>Cucina Italiana</h1>
-        <p>Autêntica culinária italiana feita com ingredientes frescos e muito amor.</p>
-        <div class="d-flex justify-content-center gap-3 flex-wrap">
-          <a href="cardapio.html" class="botao-primario">
-            <i class="bi bi-menu-button-wide me-2"></i>Ver Cardápio
+        <h1 class="fw-bold mb-2" style="color: var(--vermelho); font-size: 2.2rem">Cucina Italiana</h1>
+        <p class="text-muted mb-0" style="font-size: 1.1rem">
+          Autêntica culinária italiana feita com ingredientes frescos e muito amor.
+        </p>
+      </div>
+
+      <hr class="my-3" />
+
+      <!-- Pills de filtro por categoria — populados via JavaScript -->
+      <div id="filtros-visitante" class="d-flex flex-wrap gap-2 mb-4"></div>
+
+      <!-- Spinner enquanto o cardápio carrega -->
+      <div id="carregando-cardapio-visitante" class="text-center py-5 text-muted">
+        <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+        Carregando cardápio…
+      </div>
+
+      <!-- Mensagem de erro do cardápio -->
+      <p id="erro-cardapio-visitante" class="erro text-center"></p>
+
+      <!-- Seções de itens por categoria — populadas via JavaScript -->
+      <div id="lista-itens-visitante"></div>
+
+      <!-- Convite ao login exibido abaixo do cardápio -->
+      <div class="text-center py-4 mt-2 border-top">
+        <p class="text-muted mb-0 small">
+          Gostou?
+          <a href="login.html" class="fw-semibold text-decoration-none" style="color: var(--vermelho)">
+            Faça login ou crie uma conta
           </a>
-          <a href="login.html" class="btn btn-outline-secondary btn-lg px-4">
-            <i class="bi bi-box-arrow-in-right me-1"></i>Entrar
-          </a>
-        </div>
-      </section>
+          para realizar um pedido.
+        </p>
+      </div>
+
     </div>
 
     <!-- Dashboard personalizado para usuários autenticados -->

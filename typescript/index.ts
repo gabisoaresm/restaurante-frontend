@@ -1,5 +1,19 @@
 // Dashboard personalizado da página inicial — adapta o conteúdo ao tipo de perfil do usuário
 
+interface CategoriaSimples {
+    id: number;
+    nome: string;
+}
+
+interface ItemCardapioSimples {
+    id: number;
+    nome: string;
+    descricao: string;
+    preco: string;
+    categoria: number;
+    disponivel: boolean;
+}
+
 // Aguarda autenticacao.ts terminar de renderizar o cabeçalho para que localStorage.tipo esteja disponível
 function aguardarCabecalhoIndex(): Promise<void> {
     return new Promise(resolve => {
@@ -48,8 +62,110 @@ document.addEventListener("DOMContentLoaded", async () => {
     const username = localStorage.getItem("username");
 
     if (!token || !tipo) {
-        // Visitante não autenticado — exibe página pública de apresentação
+        // Visitante não autenticado — exibe hero compacto e cardápio em modo somente leitura
         divVisitante.classList.remove("d-none");
+
+        const divFiltros        = document.getElementById("filtros-visitante") as HTMLDivElement;
+        const divCarregandoMenu = document.getElementById("carregando-cardapio-visitante") as HTMLDivElement;
+        const pErroMenu         = document.getElementById("erro-cardapio-visitante") as HTMLParagraphElement;
+        const divLista          = document.getElementById("lista-itens-visitante") as HTMLDivElement;
+
+        const params         = new URLSearchParams(window.location.search);
+        const categoriaAtiva = params.get("categoria");
+
+        try {
+            // Busca categorias e itens em paralelo — endpoints públicos, sem autenticação
+            const [resCateg, resItens] = await Promise.all([
+                fetch(`${BASE_URL}/api/cardapio/categorias/`),
+                fetch(categoriaAtiva
+                    ? `${BASE_URL}/api/cardapio/itens/?categoria=${categoriaAtiva}`
+                    : `${BASE_URL}/api/cardapio/itens/`)
+            ]);
+
+            const categorias: CategoriaSimples[]   = await resCateg.json();
+            const todosItens: ItemCardapioSimples[] = await resItens.json();
+
+            // Visitante vê apenas itens marcados como disponíveis
+            const itens = todosItens.filter(item => item.disponivel);
+
+            // Monta pills de filtro por categoria — links relativos para suportar ?categoria=<id>
+            const paginaBase = window.location.pathname;
+            const pillTodas  = document.createElement("a");
+            pillTodas.href        = paginaBase;
+            pillTodas.className   = `btn btn-sm ${!categoriaAtiva ? "btn-dark" : "btn-outline-dark"}`;
+            pillTodas.textContent = "Todas";
+            divFiltros.appendChild(pillTodas);
+
+            for (const cat of categorias) {
+                const pill = document.createElement("a");
+                pill.href        = `${paginaBase}?categoria=${cat.id}`;
+                pill.className   = `btn btn-sm ${categoriaAtiva === String(cat.id) ? "btn-secondary" : "btn-outline-secondary"}`;
+                pill.textContent = cat.nome;
+                divFiltros.appendChild(pill);
+            }
+
+            divCarregandoMenu.classList.add("d-none");
+
+            if (itens.length === 0) {
+                divLista.innerHTML = `
+                    <div class="card shadow-sm border-0">
+                      <div class="card-body text-center py-5 text-muted">
+                        <i class="bi bi-journal-x fs-2 d-block mb-2"></i>
+                        Nenhum item disponível no momento.
+                      </div>
+                    </div>`;
+                return;
+            }
+
+            // Agrupa os itens por categoria respeitando a ordem retornada pelo backend
+            const itensPorCategoria = new Map<number, { nome: string; itens: ItemCardapioSimples[] }>();
+            for (const cat of categorias) {
+                itensPorCategoria.set(cat.id, { nome: cat.nome, itens: [] });
+            }
+            for (const item of itens) {
+                itensPorCategoria.get(item.categoria)?.itens.push(item);
+            }
+
+            // Renderiza uma seção por categoria com cards somente leitura (sem stepper nem ações)
+            for (const [, { nome: catNome, itens: itensCategoria }] of itensPorCategoria) {
+                if (itensCategoria.length === 0) continue;
+
+                const secao = document.createElement("section");
+                secao.className = "mb-5";
+                secao.innerHTML = `
+                    <h6 class="fw-semibold text-uppercase text-muted mb-3"
+                        style="font-size: .7rem; letter-spacing: .07em;">
+                      <i class="bi bi-tag me-1"></i>${catNome}
+                    </h6>
+                    <div class="row g-3"></div>`;
+
+                const row = secao.querySelector(".row")!;
+
+                for (const item of itensCategoria) {
+                    const col  = document.createElement("div");
+                    col.className = "col-md-4 col-sm-6 fade-in";
+                    const precoBR = Number(item.preco).toFixed(2).replace(".", ",");
+                    col.innerHTML = `
+                        <div class="card h-100 shadow-sm border-0">
+                          <div class="card-body d-flex flex-column p-4">
+                            <h6 class="card-title fw-semibold mb-1">${item.nome}</h6>
+                            <p class="card-text text-muted small flex-grow-1 my-2">${item.descricao}</p>
+                            <div class="d-flex justify-content-end align-items-center mt-auto">
+                              <span class="fw-semibold" style="color: var(--vermelho)">R$ ${precoBR}</span>
+                            </div>
+                          </div>
+                        </div>`;
+                    row.appendChild(col);
+                }
+
+                divLista.appendChild(secao);
+            }
+
+        } catch {
+            divCarregandoMenu.classList.add("d-none");
+            pErroMenu.textContent = "Não foi possível carregar o cardápio. Verifique sua conexão com o servidor.";
+        }
+
         return;
     }
 

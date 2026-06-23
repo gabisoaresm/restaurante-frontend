@@ -39,6 +39,146 @@ document.addEventListener("DOMContentLoaded", async () => {
     const divCarregando = document.getElementById("carregando");
     const divLista = document.getElementById("lista-categorias");
     const pErro = document.getElementById("mensagem-erro");
+    let modalCategoriaConfigurado = false;
+    let categoriaExclusaoPendente = null;
+    // HTML do modal de confirmação — Bootstrap CSS only (sem bootstrap.bundle.js)
+    function htmlModalExcluirCategoria() {
+        return `
+        <div class="modal fade" id="modal-excluir-categoria" tabindex="-1"
+             aria-labelledby="modal-excluir-categoria-titulo" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-sm border-0">
+                    <div class="modal-header border-0 pb-0">
+                        <h5 class="modal-title fw-semibold" id="modal-excluir-categoria-titulo">Excluir categoria</h5>
+                        <button type="button" class="btn-close" id="btn-fechar-modal-excluir-categoria"
+                                aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body pt-3">
+                        <p class="text-muted text-center mb-1">
+                            Deseja excluir a categoria
+                            <strong id="modal-excluir-categoria-nome"></strong>?
+                        </p>
+                        <p class="text-muted text-center small mb-0">
+                            Todos os itens desta categoria também serão removidos. Esta ação não pode ser desfeita.
+                        </p>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 gap-2">
+                        <button type="button" class="btn btn-outline-secondary" id="btn-cancelar-excluir-categoria">
+                            Cancelar
+                        </button>
+                        <button type="button" class="btn btn-danger" id="btn-confirmar-excluir-categoria">
+                            Excluir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade" id="backdrop-modal-excluir-categoria"></div>`;
+    }
+    function fecharModalExcluirCategoria() {
+        const modal = document.getElementById("modal-excluir-categoria");
+        const backdrop = document.getElementById("backdrop-modal-excluir-categoria");
+        if (!modal || !backdrop)
+            return;
+        modal.classList.remove("show");
+        modal.style.display = "none";
+        modal.setAttribute("aria-hidden", "true");
+        modal.removeAttribute("aria-modal");
+        backdrop.classList.remove("show");
+        backdrop.style.display = "none";
+        document.body.classList.remove("modal-open");
+        document.body.style.removeProperty("overflow");
+        document.body.style.removeProperty("padding-right");
+        const btnConfirmar = document.getElementById("btn-confirmar-excluir-categoria");
+        if (btnConfirmar) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.textContent = "Excluir";
+        }
+        categoriaExclusaoPendente = null;
+    }
+    function abrirModalExcluirCategoria(id, nome, btn) {
+        if (!document.getElementById("modal-excluir-categoria")) {
+            document.body.insertAdjacentHTML("beforeend", htmlModalExcluirCategoria());
+            configurarEventosModalCategoria();
+        }
+        categoriaExclusaoPendente = { id, nome, btn };
+        const span = document.getElementById("modal-excluir-categoria-nome");
+        if (span)
+            span.textContent = nome;
+        const btnConfirmar = document.getElementById("btn-confirmar-excluir-categoria");
+        if (btnConfirmar) {
+            btnConfirmar.disabled = false;
+            btnConfirmar.textContent = "Excluir";
+        }
+        const modal = document.getElementById("modal-excluir-categoria");
+        const backdrop = document.getElementById("backdrop-modal-excluir-categoria");
+        if (!modal || !backdrop)
+            return;
+        modal.classList.add("show");
+        modal.style.display = "block";
+        modal.setAttribute("aria-modal", "true");
+        modal.removeAttribute("aria-hidden");
+        backdrop.style.display = "";
+        backdrop.classList.add("show");
+        document.body.classList.add("modal-open");
+        document.body.style.overflow = "hidden";
+    }
+    // Remove a categoria via DELETE na API após confirmação no modal
+    async function executarExclusaoCategoria() {
+        var _a;
+        if (!categoriaExclusaoPendente)
+            return;
+        const { id, btn } = categoriaExclusaoPendente;
+        const btnConfirmar = document.getElementById("btn-confirmar-excluir-categoria");
+        btnConfirmar.disabled = true;
+        btnConfirmar.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Excluindo…`;
+        btn.disabled = true;
+        try {
+            // Envia DELETE ao backend para remover a categoria (e seus itens em cascata)
+            const res = await fetch(`${BASE_URL}/api/cardapio/categorias/${id}/`, {
+                method: "DELETE",
+                headers: { "Authorization": `${TOKEN_PREFIXO} ${token}` }
+            });
+            if (res.status === 204) {
+                fecharModalExcluirCategoria();
+                // Recarrega a lista após exclusão bem-sucedida
+                await carregarCategorias();
+            }
+            else if (res.status === 403) {
+                pErro.textContent = "Apenas gerentes podem excluir categorias.";
+                fecharModalExcluirCategoria();
+                btn.disabled = false;
+            }
+            else {
+                const dados = await res.json();
+                pErro.textContent = String((_a = dados["erro"]) !== null && _a !== void 0 ? _a : "Erro ao excluir a categoria.");
+                fecharModalExcluirCategoria();
+                btn.disabled = false;
+            }
+        }
+        catch (_b) {
+            pErro.textContent = "Não foi possível conectar ao servidor.";
+            fecharModalExcluirCategoria();
+            btn.disabled = false;
+        }
+    }
+    function configurarEventosModalCategoria() {
+        var _a, _b, _c, _d;
+        if (modalCategoriaConfigurado)
+            return;
+        modalCategoriaConfigurado = true;
+        (_a = document.getElementById("btn-cancelar-excluir-categoria")) === null || _a === void 0 ? void 0 : _a.addEventListener("click", fecharModalExcluirCategoria);
+        (_b = document.getElementById("btn-fechar-modal-excluir-categoria")) === null || _b === void 0 ? void 0 : _b.addEventListener("click", fecharModalExcluirCategoria);
+        (_c = document.getElementById("backdrop-modal-excluir-categoria")) === null || _c === void 0 ? void 0 : _c.addEventListener("click", fecharModalExcluirCategoria);
+        (_d = document.getElementById("btn-confirmar-excluir-categoria")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", () => { void executarExclusaoCategoria(); });
+        document.addEventListener("keydown", (evento) => {
+            if (evento.key !== "Escape")
+                return;
+            const modal = document.getElementById("modal-excluir-categoria");
+            if (modal === null || modal === void 0 ? void 0 : modal.classList.contains("show"))
+                fecharModalExcluirCategoria();
+        });
+    }
     // Carrega e renderiza a lista de categorias cadastradas
     async function carregarCategorias() {
         divCarregando.classList.remove("d-none");
@@ -87,35 +227,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             card.appendChild(ul);
             divLista.appendChild(card);
-            // Vincula os botões de excluir após renderizar a lista
+            // Vincula os botões de excluir ao modal de confirmação
             divLista.querySelectorAll(".btn-excluir-cat").forEach(btn => {
-                btn.addEventListener("click", async () => {
-                    var _a;
+                btn.addEventListener("click", () => {
                     const id = btn.dataset["id"];
                     const nome = btn.dataset["nome"];
-                    if (!confirm(`Excluir a categoria "${nome}"?\nTodos os itens desta categoria também serão removidos.`))
-                        return;
-                    // Envia DELETE ao backend para remover a categoria (e seus itens em cascata)
-                    try {
-                        const res = await fetch(`${BASE_URL}/api/cardapio/categorias/${id}/`, {
-                            method: "DELETE",
-                            headers: { "Authorization": `${TOKEN_PREFIXO} ${token}` }
-                        });
-                        if (res.status === 204) {
-                            // Recarrega a lista após exclusão bem-sucedida
-                            await carregarCategorias();
-                        }
-                        else if (res.status === 403) {
-                            pErro.textContent = "Apenas gerentes podem excluir categorias.";
-                        }
-                        else {
-                            const dados = await res.json();
-                            pErro.textContent = String((_a = dados["erro"]) !== null && _a !== void 0 ? _a : "Erro ao excluir a categoria.");
-                        }
-                    }
-                    catch (_b) {
-                        pErro.textContent = "Não foi possível conectar ao servidor.";
-                    }
+                    abrirModalExcluirCategoria(id, nome, btn);
                 });
             });
         }

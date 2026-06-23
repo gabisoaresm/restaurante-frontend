@@ -65,6 +65,21 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!selectTipo.value) { selectTipo.closest(".campo")?.classList.add("campo-invalido"); invalido = true; }
         if (invalido) { pErro.textContent = "Preencha todos os campos obrigatórios."; return; }
 
+        // Valida se a data de validade não está no passado (MM/YYYY)
+        const partesValidade = inputVal.value.trim().split("/");
+        if (partesValidade.length === 2) {
+            const mesCartao = parseInt(partesValidade[0], 10);
+            const anoCartao = parseInt(partesValidade[1], 10);
+            const hoje      = new Date();
+            const anoHoje   = hoje.getFullYear();
+            const mesHoje   = hoje.getMonth() + 1; // getMonth() retorna 0–11
+            if (anoCartao < anoHoje || (anoCartao === anoHoje && mesCartao < mesHoje)) {
+                inputVal.closest(".campo")?.classList.add("campo-invalido");
+                pErro.textContent = "A data de validade do cartão já expirou.";
+                return;
+            }
+        }
+
         // Loading state — desabilita o botão durante o envio para evitar duplo clique
         btnSalvar.disabled   = true;
         btnSalvar.innerHTML  = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Salvando…';

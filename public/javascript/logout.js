@@ -65,6 +65,7 @@ function fecharModalLogout() {
     modal.setAttribute("aria-hidden", "true");
     modal.removeAttribute("aria-modal");
     backdrop.classList.remove("show");
+    backdrop.style.display = "none";
     document.body.classList.remove("modal-open");
     document.body.style.removeProperty("overflow");
     document.body.style.removeProperty("padding-right");
@@ -83,6 +84,7 @@ function abrirModalLogout() {
     modal.style.display = "block";
     modal.setAttribute("aria-modal", "true");
     modal.removeAttribute("aria-hidden");
+    backdrop.style.display = "";
     backdrop.classList.add("show");
     document.body.classList.add("modal-open");
     document.body.style.overflow = "hidden";

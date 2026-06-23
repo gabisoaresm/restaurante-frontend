@@ -13,14 +13,17 @@ function linkNav(href, texto) {
                 <a class="nav-link px-lg-2${classeAtiva}" href="${href}"${ariaAtual}>${texto}</a>
             </li>`;
 }
-// Marca e botão responsivo compartilhados pelo cabeçalho
+// Marca do restaurante (compartilhada por visitante e usuário logado)
 function htmlMarcaCabecalho() {
     return `<a class="navbar-brand logo d-flex align-items-center gap-2 fw-bold py-0 text-nowrap text-white" href="index.html">
                 <i class="bi bi-fork-knife fs-5 flex-shrink-0" aria-hidden="true"></i>
                 <span>Cucina Italiana</span>
-            </a>
-            <button id="navbar-toggler" class="navbar-toggler border-0 shadow-none ms-auto" type="button"
-                    aria-controls="navbar-principal" aria-expanded="false" aria-label="Alternar menu">
+            </a>`;
+}
+// Botão hambúrguer — apenas links de navegação entram no painel colapsável
+function htmlTogglerNavbar() {
+    return `<button id="navbar-toggler" class="navbar-toggler d-lg-none border-0 shadow-none" type="button"
+                    aria-controls="navbar-principal" aria-expanded="false" aria-label="Alternar menu de navegação">
                 <span class="navbar-toggler-icon"></span>
             </button>`;
 }
@@ -43,13 +46,14 @@ function htmlDropdownPerfil(usuario, nomeDisplay) {
                 ${itemDropdownPerfil("meus-cartoes.html", "Meus Cartões", "bi-credit-card")}`;
     }
     return `
-        <div class="dropdown position-static position-lg-relative" id="dropdown-perfil-container">
+        <div class="dropdown position-relative" id="dropdown-perfil-container">
             <button type="button"
                     class="btn btn-link nav-link dropdown-toggle d-inline-flex align-items-center gap-2 py-2 px-lg-2 text-nowrap text-white text-decoration-none shadow-none border-0 usuario-info"
                     id="dropdown-perfil"
-                    aria-expanded="false">
+                    aria-expanded="false"
+                    aria-label="Menu do perfil">
                 <i class="bi bi-person-circle fs-5"></i>
-                <span class="fw-semibold">${nomeDisplay}</span>
+                <span class="fw-semibold nome-usuario-header d-none d-lg-inline">${nomeDisplay}</span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded py-2 bg-white"
                 id="dropdown-menu-perfil" aria-labelledby="dropdown-perfil">
@@ -74,6 +78,7 @@ function fecharDropdownPerfil() {
     menu.classList.remove("show");
     container.classList.remove("show");
     toggle.setAttribute("aria-expanded", "false");
+    menu.style.removeProperty("top");
 }
 // Garante destaque vinho no item da página atual e remove .active do Bootstrap (azul)
 function sincronizarItensDropdownAtivos() {
@@ -97,10 +102,22 @@ function configurarDropdownPerfil() {
         evento.stopPropagation();
         const abrir = !menu.classList.contains("show");
         fecharDropdownPerfil();
+        // Fecha o menu hambúrguer ao abrir o dropdown — perfil fica fora do painel colapsável
+        const menuNav = document.getElementById("navbar-principal");
+        const togglerNav = document.getElementById("navbar-toggler");
+        menuNav === null || menuNav === void 0 ? void 0 : menuNav.classList.remove("show");
+        togglerNav === null || togglerNav === void 0 ? void 0 : togglerNav.setAttribute("aria-expanded", "false");
         if (abrir) {
             menu.classList.add("show");
             container.classList.add("show");
             toggle.setAttribute("aria-expanded", "true");
+            // Mobile: posiciona o dropdown abaixo do header sem ser cortado pelo flex da navbar
+            if (window.matchMedia("(max-width: 991.98px)").matches) {
+                const cabecalho = document.getElementById("cabecalho");
+                if (cabecalho) {
+                    menu.style.top = `${cabecalho.getBoundingClientRect().bottom + 4}px`;
+                }
+            }
         }
     });
     // Fecha ao clicar fora do dropdown
@@ -180,13 +197,14 @@ function renderizarCabecalhoLogado(usuario) {
     cabecalho.innerHTML = `
         <div class="cabecalho-interno container-fluid">
             ${htmlMarcaCabecalho()}
-            <div class="collapse navbar-collapse" id="navbar-principal">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
+            <div class="cabecalho-acoes-usuario d-flex align-items-center gap-1 order-2 order-lg-3 ms-auto ms-lg-0 flex-shrink-0">
+                ${htmlDropdownPerfil(usuario, nomeDisplay)}
+                ${htmlTogglerNavbar()}
+            </div>
+            <div class="collapse navbar-collapse order-3 order-lg-2 flex-lg-grow-1 w-100 w-lg-auto" id="navbar-principal">
+                <ul class="navbar-nav me-lg-auto mb-2 mb-lg-0 gap-lg-1">
                     ${linksMenu}
                 </ul>
-                <div class="d-flex ms-lg-auto pb-3 pb-lg-0">
-                    ${htmlDropdownPerfil(usuario, nomeDisplay)}
-                </div>
             </div>
         </div>`;
     configurarDropdownPerfil();
@@ -201,8 +219,11 @@ function renderizarCabecalhoVisitante() {
     cabecalho.innerHTML = `
         <div class="cabecalho-interno container-fluid">
             ${htmlMarcaCabecalho()}
-            <div class="collapse navbar-collapse" id="navbar-principal">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-2">
+            <div class="cabecalho-acoes-usuario d-flex align-items-center gap-1 order-2 order-lg-3 ms-auto ms-lg-0 flex-shrink-0">
+                ${htmlTogglerNavbar()}
+            </div>
+            <div class="collapse navbar-collapse order-3 order-lg-2 flex-lg-grow-1 w-100 w-lg-auto" id="navbar-principal">
+                <ul class="navbar-nav navbar-nav-visitante ms-lg-auto mb-2 mb-lg-0 align-items-lg-center gap-2">
                     <li class="nav-item">
                         <a class="btn btn-outline-light btn-sm px-3" href="login.html">
                             <i class="bi bi-box-arrow-in-right me-1"></i>Entrar

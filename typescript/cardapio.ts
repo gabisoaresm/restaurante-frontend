@@ -79,7 +79,10 @@ function atualizarBarraCarrinho(): void {
     const main = document.querySelector("main") as HTMLElement | null;
     if (totalQtd > 0) {
         barra.classList.remove("oculta");
-        if (main) main.style.paddingBottom = "80px";
+        if (main) {
+            const mobile = window.matchMedia("(max-width: 575.98px)").matches;
+            main.style.paddingBottom = mobile ? "120px" : "80px";
+        }
     } else {
         barra.classList.add("oculta");
         if (main) main.style.paddingBottom = "";
@@ -140,13 +143,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         barra.id        = "barra-carrinho";
         barra.className = "barra-carrinho fixed-bottom bg-white border-top shadow-sm py-3 oculta";
         barra.innerHTML = `
-            <div class="container d-flex justify-content-between align-items-center gap-3">
-              <div class="d-flex align-items-center gap-2">
+            <div class="container barra-carrinho-conteudo d-flex justify-content-between align-items-center gap-3">
+              <div class="barra-carrinho-resumo d-flex align-items-center gap-2">
                 <i class="bi bi-cart3 fs-5" style="color: var(--vermelho)"></i>
                 <span class="fw-semibold" id="barra-resumo">0 itens</span>
                 <span class="text-muted small d-none d-sm-inline">selecionados</span>
               </div>
-              <div class="d-flex align-items-center gap-3">
+              <div class="barra-carrinho-acoes d-flex align-items-center gap-3">
                 <div class="text-end">
                   <div class="text-muted small d-none d-sm-block">Total</div>
                   <span id="barra-total" class="fw-semibold fs-5" style="color: var(--vermelho)">R$ 0,00</span>

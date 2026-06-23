@@ -250,9 +250,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <div class="fw-semibold">${u.username}</div>
                 <div class="mt-1">${badgeHtml}</div>
             </td>
-            <td>${nomeCompleto}</td>
-            <td class="text-muted small">${u.email || "—"}</td>
-            <td class="text-muted small text-nowrap">${u.date_joined}</td>
+            <td class="col-nome">${nomeCompleto}</td>
+            <td class="text-muted small col-email">${u.email || "—"}</td>
+            <td class="text-muted small text-nowrap col-cadastro">${u.date_joined}</td>
             <td>
                 <div class="campo mb-0">
                     <select class="form-select form-select-sm select-tipo"
@@ -267,10 +267,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 </div>
             </td>
             <td class="pe-4 text-end">
-                <div class="d-flex gap-1 justify-content-end flex-nowrap">
+                <div class="d-flex gap-1 justify-content-end acoes-usuario">
                     <button type="button" class="btn btn-sm btn-danger btn-salvar-tipo"
                             data-id="${u.id}" disabled title="Salvar perfil">
-                        <i class="bi bi-check-lg me-1"></i>Salvar
+                        <i class="bi bi-check-lg me-1"></i><span class="texto-salvar">Salvar</span>
                     </button>
                     <button type="button" class="btn btn-sm btn-outline-danger btn-excluir-usuario"
                             data-id="${u.id}" data-username="${u.username}" title="Excluir usuário">
@@ -344,6 +344,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             select.value = (_d = select.dataset.original) !== null && _d !== void 0 ? _d : "cliente";
         }
         btn.disabled = select.value === select.dataset.original;
-        btn.innerHTML = `<i class="bi bi-check-lg me-1"></i>Salvar`;
+        btn.innerHTML = `<i class="bi bi-check-lg me-1"></i><span class="texto-salvar">Salvar</span>`;
     });
 });

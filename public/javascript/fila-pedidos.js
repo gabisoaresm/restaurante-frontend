@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             // Botão de avançar status — oculto se o pedido já foi entregue
             const proximo = PROXIMO_STATUS[pedido.status];
             const btnAvancarHtml = proximo
-                ? `<div class="d-flex align-items-center gap-2 pt-3 border-top">
+                ? `<div class="acoes-pedido-fila d-flex align-items-center pt-3 border-top">
                      <span class="text-muted small me-auto">
                        Próximo: <strong>${ROTULO_STATUS[proximo]}</strong>
                      </span>
@@ -164,13 +164,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             card.className = "card shadow-sm border-0 mb-3 fade-in";
             card.dataset["pedidoId"] = String(pedido.id);
             card.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center px-4 pt-4 pb-3 border-bottom">
-                  <div>
-                    <span class="fw-semibold">Pedido #${pedido.id}</span>
-                    <span class="text-muted small ms-2">
+                <div class="cabecalho-card-pedido d-flex justify-content-between align-items-center px-4 pt-4 pb-3 border-bottom">
+                  <div class="meta-pedido">
+                    <span class="fw-semibold d-block d-sm-inline">Pedido #${pedido.id}</span>
+                    <span class="text-muted small">
                       <i class="bi bi-person me-1"></i>${pedido.cliente_username}
                     </span>
-                    <span class="text-muted small ms-2">${formatarData(pedido.data_hora)}</span>
+                    <span class="text-muted small">${formatarData(pedido.data_hora)}</span>
                   </div>
                   <span class="${classeBadge(pedido.status)}">${(_a = ROTULO_STATUS[pedido.status]) !== null && _a !== void 0 ? _a : pedido.status}</span>
                 </div>

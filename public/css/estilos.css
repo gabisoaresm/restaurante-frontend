@@ -36,6 +36,7 @@ body {
 
 #cabecalho {
   background: var(--vermelho);
+  overflow: visible;
   --bs-navbar-color: rgba(255, 255, 255, 0.88);
   --bs-navbar-hover-color: var(--branco);
   --bs-navbar-active-color: var(--branco);
@@ -50,6 +51,51 @@ body {
   margin: 0 auto;
   padding-left: 1rem;
   padding-right: 1rem;
+}
+
+/* Mobile: ícone de perfil à esquerda do hambúrguer; dropdown ancorado à viewport */
+@media (max-width: 991.98px) {
+  #cabecalho .cabecalho-acoes-usuario {
+    flex-shrink: 0;
+  }
+
+  #cabecalho #dropdown-perfil {
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+  }
+
+  #cabecalho #dropdown-perfil.dropdown-toggle::after {
+    display: none;
+  }
+
+  #cabecalho #dropdown-menu-perfil.show {
+    position: fixed;
+    top: 3.25rem;
+    right: 1rem;
+    left: auto;
+    min-width: 11rem;
+    max-width: calc(100vw - 2rem);
+    z-index: 1050;
+  }
+
+  /* Visitante: Entrar / Registrar centralizados no painel do hambúrguer */
+  #cabecalho .navbar-nav-visitante {
+    align-items: center;
+    width: 100%;
+    padding-top: 0.25rem;
+    padding-bottom: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  #cabecalho .navbar-nav-visitante .nav-item {
+    width: min(100%, 14rem);
+  }
+
+  #cabecalho .navbar-nav-visitante .nav-item .btn {
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+  }
 }
 
 .logo {
@@ -352,6 +398,133 @@ body {
   background: var(--erro);
   border-color: var(--erro);
   color: #fff;
+}
+
+@media (max-width: 575.98px) {
+  .card-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .card-item-acoes {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+
+/* ── Cabeçalhos de seção (título + ações) ─────────────────────────────────── */
+
+.cabecalho-secao {
+  gap: 1rem;
+}
+
+@media (max-width: 575.98px) {
+  .cabecalho-secao .btn {
+    width: 100%;
+  }
+}
+
+
+/* ── Cabeçalho dos cards de pedido ────────────────────────────────────────── */
+
+.cabecalho-card-pedido {
+  gap: 0.75rem;
+}
+
+.cabecalho-card-pedido .meta-pedido span + span {
+  margin-left: 0.5rem;
+}
+
+@media (max-width: 575.98px) {
+  .cabecalho-card-pedido {
+    flex-direction: column;
+    align-items: flex-start !important;
+  }
+
+  .cabecalho-card-pedido .meta-pedido span + span {
+    margin-left: 0;
+  }
+
+  .cabecalho-card-pedido .meta-pedido span {
+    display: block;
+  }
+}
+
+
+/* ── Ações da fila de pedidos (atendente) ─────────────────────────────────── */
+
+.acoes-pedido-fila {
+  gap: 0.75rem;
+}
+
+@media (max-width: 575.98px) {
+  .acoes-pedido-fila {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .acoes-pedido-fila .btn {
+    width: 100%;
+  }
+}
+
+
+/* ── Barra fixa do carrinho (cardápio) ────────────────────────────────────── */
+
+@media (max-width: 575.98px) {
+  .barra-carrinho .barra-carrinho-conteudo {
+    flex-direction: column;
+    align-items: stretch !important;
+    text-align: center;
+  }
+
+  .barra-carrinho .barra-carrinho-resumo,
+  .barra-carrinho .barra-carrinho-acoes {
+    justify-content: center;
+  }
+
+  .barra-carrinho .barra-carrinho-acoes {
+    width: 100%;
+  }
+
+  .barra-carrinho .barra-carrinho-acoes .btn {
+    flex-grow: 1;
+  }
+}
+
+
+/* ── Tabela de usuários (gerente) ───────────────────────────────────────── */
+
+@media (max-width: 767.98px) {
+  .tabela-usuarios .col-email,
+  .tabela-usuarios .col-cadastro {
+    display: none;
+  }
+
+  .tabela-usuarios .acoes-usuario {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .tabela-usuarios .btn-salvar-tipo .texto-salvar {
+    display: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .tabela-usuarios .col-nome {
+    display: none;
+  }
+}
+
+
+/* ── Cabeçalho do site em telas estreitas ─────────────────────────────────── */
+
+@media (max-width: 575.98px) {
+  .logo {
+    font-size: 1rem;
+  }
 }
 
 

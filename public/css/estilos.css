@@ -272,6 +272,19 @@ body {
 }
 
 
+/* ── Cards de acesso rápido (dashboard da Home) ───────────────────────────── */
+
+.card-dashboard {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.card-dashboard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+
 /* ── Animação de entrada (adicionar via JS ao carregar listas) ────────────── */
 
 @keyframes fadeIn {

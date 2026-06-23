@@ -154,15 +154,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         const itens = tipo === "gerente"
             ? todosItens
             : todosItens.filter(item => item.disponivel);
-        // Monta pills de filtro por categoria
+        // Monta pills de filtro por categoria — links relativos à página atual para
+        // funcionar tanto em index.html quanto em cardapio.html sem redirecionamento
+        const paginaBase = window.location.pathname;
         const pillTodas = document.createElement("a");
-        pillTodas.href = "cardapio.html";
+        pillTodas.href = paginaBase;
         pillTodas.className = `btn btn-sm ${!categoriaAtiva ? "btn-dark" : "btn-outline-dark"}`;
         pillTodas.textContent = "Todas";
         divFiltros.appendChild(pillTodas);
         for (const cat of categorias) {
             const pill = document.createElement("a");
-            pill.href = `cardapio.html?categoria=${cat.id}`;
+            pill.href = `${paginaBase}?categoria=${cat.id}`;
             pill.className = `btn btn-sm ${categoriaAtiva === String(cat.id) ? "btn-secondary" : "btn-outline-secondary"}`;
             pill.textContent = cat.nome;
             divFiltros.appendChild(pill);

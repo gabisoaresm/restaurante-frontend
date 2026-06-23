@@ -11,16 +11,42 @@
 <body>
   <header id="cabecalho"></header>
 
-  <main class="container">
-    <section class="hero">
-      <h1>Bem-vindo ao Restaurante</h1>
-      <p>Navegue pelo cardápio ou faça seu pedido online.</p>
-      <a href="cardapio.html" class="botao-primario">Ver Cardápio</a>
-    </section>
+  <main class="container mt-4">
+
+    <!-- Spinner exibido enquanto autenticacao.ts resolve o tipo do usuário -->
+    <div id="carregando" class="text-center py-5 text-muted">
+      <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+      Carregando…
+    </div>
+
+    <!-- Vista para visitantes não autenticados -->
+    <div id="vista-visitante" class="d-none">
+      <section class="hero">
+        <i class="bi bi-fork-knife fs-1 d-block mb-3" style="color: var(--vermelho)"></i>
+        <h1>Cucina Italiana</h1>
+        <p>Autêntica culinária italiana feita com ingredientes frescos e muito amor.</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <a href="cardapio.html" class="botao-primario">
+            <i class="bi bi-menu-button-wide me-2"></i>Ver Cardápio
+          </a>
+          <a href="login.html" class="btn btn-outline-secondary btn-lg px-4">
+            <i class="bi bi-box-arrow-in-right me-1"></i>Entrar
+          </a>
+        </div>
+      </section>
+    </div>
+
+    <!-- Dashboard personalizado para usuários autenticados -->
+    <div id="vista-logada" class="d-none">
+      <div id="boas-vindas" class="mb-4"></div>
+      <div id="cards-dashboard" class="row g-4"></div>
+    </div>
+
   </main>
 
   <script src="javascript/constantes.js"></script>
   <script src="javascript/autenticacao.js"></script>
   <script src="javascript/logout.js"></script>
+  <script src="javascript/index.js"></script>
 </body>
 </html>

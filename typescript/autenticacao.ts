@@ -20,6 +20,7 @@ function renderizarCabecalhoLogado(usuario: DadosUsuario): void {
             <a href="cardapio.html">Cardápio</a>
             <a href="carrinho.html">Carrinho</a>
             <a href="meus-pedidos.html">Meus Pedidos</a>
+            <a href="meus-cartoes.html">Meus Cartões</a>
             <a href="trocar-senha.html">Trocar Senha</a>`;
     } else if (usuario.tipo === "atendente") {
         linksMenu = `

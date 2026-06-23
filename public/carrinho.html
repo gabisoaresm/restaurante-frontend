@@ -81,7 +81,7 @@
 
         </div>
 
-        <!-- Coluna direita: resumo do total + forma de pagamento + confirmar -->
+        <!-- Coluna direita: resumo + pagamento com cartão -->
         <div class="col-md-4">
 
           <!-- Resumo com o valor total do pedido -->
@@ -95,31 +95,56 @@
             </div>
           </div>
 
-          <!-- Seleção de forma de pagamento e botão de confirmação -->
+          <!-- Pagamento com cartão salvo -->
           <div class="card shadow-sm border-0">
             <div class="card-body p-4">
               <p class="text-muted small fw-semibold text-uppercase mb-3"
                  style="font-size: .7rem; letter-spacing: .05em;">Pagamento</p>
 
-              <div class="campo mb-4">
-                <label for="forma-pagamento" class="form-label fw-semibold">
-                  Forma de pagamento *
-                </label>
-                <select id="forma-pagamento" class="form-select">
-                  <option value="">Selecione…</option>
-                  <option value="pix">Pix</option>
-                  <option value="dinheiro">Dinheiro</option>
-                  <option value="cartao_debito">Cartão de Débito</option>
-                  <option value="cartao_credito">Cartão de Crédito</option>
-                </select>
+              <!-- Estado de carregamento dos cartões -->
+              <div id="pagamento-carregando" class="text-center text-muted small py-2">
+                <div class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></div>
+                Carregando cartões…
               </div>
 
-              <p id="mensagem-erro" class="erro"></p>
+              <!-- Exibido pelo JS: sem cartões cadastrados -->
+              <div id="pagamento-sem-cartao" class="d-none">
+                <p class="text-muted small mb-3">Você não tem cartões cadastrados.</p>
+                <a href="adicionar-cartao.html" class="btn btn-outline-secondary w-100 btn-sm">
+                  <i class="bi bi-plus-circle me-1"></i>Cadastrar Cartão
+                </a>
+              </div>
 
-              <div class="d-grid">
-                <button id="btn-confirmar" type="button" class="btn btn-danger">
-                  <i class="bi bi-check-circle me-1"></i>Confirmar Pedido
-                </button>
+              <!-- Exibido pelo JS: seleção de cartão + CVV -->
+              <div id="pagamento-form" class="d-none">
+
+                <div class="campo mb-3">
+                  <label for="cartao-select" class="form-label fw-semibold">Cartão *</label>
+                  <select id="cartao-select" class="form-select">
+                    <!-- Opções injetadas via JavaScript -->
+                  </select>
+                </div>
+
+                <div class="campo mb-4">
+                  <label for="cvv-input" class="form-label fw-semibold">CVV *</label>
+                  <input type="text" id="cvv-input" maxlength="4"
+                         placeholder="000" class="form-control" />
+                </div>
+
+                <p id="mensagem-erro" class="erro"></p>
+
+                <div class="d-grid">
+                  <button id="btn-confirmar" type="button" class="btn btn-danger">
+                    <i class="bi bi-check-circle me-1"></i>Confirmar Pedido
+                  </button>
+                </div>
+
+                <div class="mt-3 text-center">
+                  <a href="adicionar-cartao.html" class="text-muted small text-decoration-none">
+                    <i class="bi bi-plus-circle me-1"></i>Cadastrar novo cartão
+                  </a>
+                </div>
+
               </div>
 
             </div>

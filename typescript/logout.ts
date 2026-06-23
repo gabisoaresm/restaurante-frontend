@@ -21,6 +21,7 @@ async function realizarLogout(): Promise<void> {
     localStorage.removeItem("username");
     localStorage.removeItem("tipo");
     localStorage.removeItem("carrinho");
+    localStorage.removeItem("carrinho_observacoes");
 
     // Redireciona para a página de login após o logout
     window.location.href = "login.html";

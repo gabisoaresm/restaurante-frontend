@@ -8,46 +8,222 @@ interface DadosUsuario {
     tipo: "gerente" | "atendente" | "cliente" | null;
 }
 
+// Retorna o nome do arquivo HTML da página atual (ex.: "cardapio.html")
+function paginaAtual(): string {
+    const caminho = window.location.pathname.split("/").pop();
+    return caminho && caminho.length > 0 ? caminho : "index.html";
+}
+
+// Monta um item de navegação Bootstrap com destaque na página ativa
+function linkNav(href: string, texto: string): string {
+    const ativo = paginaAtual() === href;
+    const classeAtiva = ativo ? " active" : "";
+    const ariaAtual = ativo ? ' aria-current="page"' : "";
+
+    return `<li class="nav-item">
+                <a class="nav-link px-lg-2${classeAtiva}" href="${href}"${ariaAtual}>${texto}</a>
+            </li>`;
+}
+
+// Marca e botão responsivo compartilhados pelo cabeçalho
+function htmlMarcaCabecalho(): string {
+    return `<a class="navbar-brand logo d-flex align-items-center gap-2 fw-bold py-0 text-nowrap text-white" href="index.html">
+                <i class="bi bi-fork-knife fs-5 flex-shrink-0" aria-hidden="true"></i>
+                <span>Cucina Italiana</span>
+            </a>
+            <button id="navbar-toggler" class="navbar-toggler border-0 shadow-none ms-auto" type="button"
+                    aria-controls="navbar-principal" aria-expanded="false" aria-label="Alternar menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>`;
+}
+
+// Monta um item do menu dropdown do perfil com destaque na página ativa
+function itemDropdownPerfil(href: string, texto: string, icone: string): string {
+    const ativo = paginaAtual() === href;
+    const classeAtiva = ativo ? " dropdown-item-ativo fw-semibold" : "";
+
+    return `<li>
+                <a class="dropdown-item link-body-emphasis text-decoration-none${classeAtiva}" href="${href}">
+                    <i class="bi ${icone} me-2"></i>${texto}
+                </a>
+            </li>`;
+}
+
+// Monta o menu dropdown do usuário logado (Meu Perfil, atalhos do cliente e Sair)
+function htmlDropdownPerfil(usuario: DadosUsuario, nomeDisplay: string): string {
+    let itensCliente = "";
+    if (usuario.tipo === "cliente") {
+        itensCliente = `
+                ${itemDropdownPerfil("meus-pedidos.html", "Meus Pedidos", "bi-receipt")}
+                ${itemDropdownPerfil("meus-cartoes.html", "Meus Cartões", "bi-credit-card")}`;
+    }
+
+    return `
+        <div class="dropdown position-static position-lg-relative" id="dropdown-perfil-container">
+            <button type="button"
+                    class="btn btn-link nav-link dropdown-toggle d-inline-flex align-items-center gap-2 py-2 px-lg-2 text-nowrap text-white text-decoration-none shadow-none border-0 usuario-info"
+                    id="dropdown-perfil"
+                    aria-expanded="false">
+                <i class="bi bi-person-circle fs-5"></i>
+                <span class="fw-semibold">${nomeDisplay}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded py-2 bg-white"
+                id="dropdown-menu-perfil" aria-labelledby="dropdown-perfil">
+                ${itemDropdownPerfil("perfil.html", "Meu Perfil", "bi-person")}
+                ${itensCliente}
+                <li><hr class="dropdown-divider my-2"></li>
+                <li>
+                    <button type="button" class="dropdown-item text-danger fw-semibold" id="btn-logout">
+                        <i class="bi bi-box-arrow-right me-2"></i>Sair
+                    </button>
+                </li>
+            </ul>
+        </div>`;
+}
+
+// Fecha o menu dropdown do perfil
+function fecharDropdownPerfil(): void {
+    const container = document.getElementById("dropdown-perfil-container");
+    const toggle = document.getElementById("dropdown-perfil");
+    const menu = document.getElementById("dropdown-menu-perfil");
+    if (!container || !toggle || !menu) return;
+
+    menu.classList.remove("show");
+    container.classList.remove("show");
+    toggle.setAttribute("aria-expanded", "false");
+}
+
+// Garante destaque vinho no item da página atual e remove .active do Bootstrap (azul)
+function sincronizarItensDropdownAtivos(): void {
+    document.querySelectorAll("#dropdown-menu-perfil a.dropdown-item[href]").forEach(link => {
+        const href = link.getAttribute("href");
+        const ativo = href === paginaAtual();
+
+        link.classList.toggle("dropdown-item-ativo", ativo);
+        link.classList.toggle("fw-semibold", ativo);
+        link.classList.remove("active");
+    });
+}
+
+// Controla abertura/fechamento do dropdown do perfil via TypeScript (sem bootstrap.bundle.js)
+function configurarDropdownPerfil(): void {
+    const container = document.getElementById("dropdown-perfil-container");
+    const toggle = document.getElementById("dropdown-perfil");
+    const menu = document.getElementById("dropdown-menu-perfil");
+    if (!container || !toggle || !menu) return;
+
+    toggle.addEventListener("click", (evento) => {
+        evento.preventDefault();
+        evento.stopPropagation();
+
+        const abrir = !menu.classList.contains("show");
+        fecharDropdownPerfil();
+
+        if (abrir) {
+            menu.classList.add("show");
+            container.classList.add("show");
+            toggle.setAttribute("aria-expanded", "true");
+        }
+    });
+
+    // Fecha ao clicar fora do dropdown
+    document.addEventListener("click", () => {
+        fecharDropdownPerfil();
+    });
+
+    // Impede que cliques dentro do menu fechem o dropdown antes da ação
+    menu.addEventListener("click", (evento) => {
+        evento.stopPropagation();
+    });
+
+    // Fecha dropdown e menu mobile ao navegar por um link do dropdown
+    menu.querySelectorAll("a.dropdown-item").forEach(link => {
+        link.addEventListener("click", () => {
+            fecharDropdownPerfil();
+
+            const menuNav = document.getElementById("navbar-principal");
+            const togglerNav = document.getElementById("navbar-toggler");
+            menuNav?.classList.remove("show");
+            togglerNav?.setAttribute("aria-expanded", "false");
+        });
+    });
+
+    const btnLogout = document.getElementById("btn-logout");
+    if (btnLogout) {
+        btnLogout.addEventListener("click", () => {
+            fecharDropdownPerfil();
+            solicitarLogout();
+        });
+    }
+
+    sincronizarItensDropdownAtivos();
+}
+
+// Controla o menu colapsável no mobile via TypeScript (Bootstrap CSS only — sem bootstrap.bundle.js)
+function configurarMenuMobile(): void {
+    const toggler = document.getElementById("navbar-toggler");
+    const menu = document.getElementById("navbar-principal");
+    if (!toggler || !menu) return;
+
+    toggler.addEventListener("click", () => {
+        const aberto = menu.classList.toggle("show");
+        toggler.setAttribute("aria-expanded", aberto ? "true" : "false");
+        fecharDropdownPerfil();
+    });
+
+    // Fecha o menu após navegar — evita que o painel fique aberto no mobile
+    menu.querySelectorAll("a.nav-link, a.btn, a.dropdown-item").forEach(link => {
+        link.addEventListener("click", () => {
+            menu.classList.remove("show");
+            toggler.setAttribute("aria-expanded", "false");
+        });
+    });
+}
+
+// Aplica classes Bootstrap ao elemento <header> antes de renderizar o conteúdo
+function prepararElementoCabecalho(cabecalho: HTMLElement): void {
+    cabecalho.className = "navbar navbar-expand-lg navbar-dark py-2 shadow-sm";
+}
+
 // Monta o cabeçalho para usuário logado, adaptando os links de menu ao tipo do perfil
 function renderizarCabecalhoLogado(usuario: DadosUsuario): void {
     const cabecalho = document.getElementById("cabecalho");
     if (!cabecalho) return;
 
+    prepararElementoCabecalho(cabecalho);
+
+    // Nome de exibição: primeiro nome quando disponível, fallback para username
+    const nomeDisplay = usuario.first_name.trim() || usuario.username;
+
     // Cada perfil vê apenas os links relevantes para o seu fluxo de trabalho
     let linksMenu = "";
     if (usuario.tipo === "cliente") {
         linksMenu = `
-            <a href="cardapio.html">Cardápio</a>
-            <a href="carrinho.html">Carrinho</a>
-            <a href="meus-pedidos.html">Meus Pedidos</a>
-            <a href="meus-cartoes.html">Meus Cartões</a>
-            <a href="trocar-senha.html">Trocar Senha</a>`;
+                ${linkNav("cardapio.html", "Cardápio")}
+                ${linkNav("carrinho.html", "Carrinho")}`;
     } else if (usuario.tipo === "atendente") {
-        linksMenu = `
-            <a href="fila-pedidos.html">Fila de Pedidos</a>
-            <a href="trocar-senha.html">Trocar Senha</a>`;
+        linksMenu = linkNav("fila-pedidos.html", "Fila de Pedidos");
     } else if (usuario.tipo === "gerente") {
         linksMenu = `
-            <a href="cardapio.html">Gerenciar Cardápio</a>
-            <a href="pedidos-gerente.html">Pedidos</a>
-            <a href="trocar-senha.html">Trocar Senha</a>`;
+                ${linkNav("cardapio.html", "Gerenciar Cardápio")}
+                ${linkNav("pedidos-gerente.html", "Pedidos")}`;
     }
 
     cabecalho.innerHTML = `
-        <div class="cabecalho-interno">
-            <a class="logo" href="index.html">Restaurante</a>
-            <nav>
-                ${linksMenu}
-                <button id="btn-logout">Sair</button>
-            </nav>
-            <span class="usuario-info">Olá, ${usuario.username} (${usuario.tipo})</span>
+        <div class="cabecalho-interno container-fluid">
+            ${htmlMarcaCabecalho()}
+            <div class="collapse navbar-collapse" id="navbar-principal">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
+                    ${linksMenu}
+                </ul>
+                <div class="d-flex ms-lg-auto pb-3 pb-lg-0">
+                    ${htmlDropdownPerfil(usuario, nomeDisplay)}
+                </div>
+            </div>
         </div>`;
 
-    // Vincula o botão de logout à função definida em logout.ts
-    const btnLogout = document.getElementById("btn-logout");
-    if (btnLogout) {
-        btnLogout.addEventListener("click", () => { void realizarLogout(); });
-    }
+    configurarDropdownPerfil();
+    configurarMenuMobile();
 }
 
 // Monta o cabeçalho para visitante (sem token ou token expirado)
@@ -55,15 +231,28 @@ function renderizarCabecalhoVisitante(): void {
     const cabecalho = document.getElementById("cabecalho");
     if (!cabecalho) return;
 
+    prepararElementoCabecalho(cabecalho);
+
     cabecalho.innerHTML = `
-        <div class="cabecalho-interno">
-            <a class="logo" href="index.html">Restaurante</a>
-            <nav>
-                <a href="index.html">Home</a>
-                <a href="login.html">Entrar</a>
-                <a href="registro.html">Registrar</a>
-            </nav>
+        <div class="cabecalho-interno container-fluid">
+            ${htmlMarcaCabecalho()}
+            <div class="collapse navbar-collapse" id="navbar-principal">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-2">
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light btn-sm px-3" href="login.html">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Entrar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-light btn-sm px-3" href="registro.html">
+                            <i class="bi bi-person-plus me-1"></i>Registrar
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>`;
+
+    configurarMenuMobile();
 }
 
 // Verifica o token salvo e constrói o cabeçalho conforme o estado de autenticação

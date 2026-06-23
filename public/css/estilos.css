@@ -32,71 +32,123 @@ body {
 }
 
 
-/* ── Cabeçalho ────────────────────────────────────────────────────────────── */
+/* ── Cabeçalho (navbar Bootstrap + paleta vinho) ─────────────────────────── */
 
 #cabecalho {
   background: var(--vermelho);
-  color: #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  --bs-navbar-color: rgba(255, 255, 255, 0.88);
+  --bs-navbar-hover-color: var(--branco);
+  --bs-navbar-active-color: var(--branco);
+  --bs-navbar-brand-color: var(--branco);
+  --bs-navbar-brand-hover-color: var(--branco);
+  --bs-navbar-toggler-border-color: rgba(255, 255, 255, 0.35);
+  --bs-navbar-toggler-focus-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.15);
 }
 
 .cabecalho-interno {
   max-width: 1100px;
   margin: 0 auto;
-  padding: 0 1.5rem;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .logo {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-  text-decoration: none;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
+  letter-spacing: 0.3px;
+  font-size: 1.15rem;
 }
 
-nav {
-  display: flex;
-  align-items: center;
-  gap: 1.2rem;
-  flex: 1;
-}
-
-nav a {
-  color: rgba(255, 255, 255, 0.85);
-  text-decoration: none;
+#cabecalho .nav-link {
   font-size: 0.95rem;
-  transition: color 0.2s;
-}
-
-nav a:hover {
-  color: #fff;
-}
-
-#btn-logout {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  padding: 0.3rem 0.9rem;
   border-radius: var(--raio);
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-#btn-logout:hover {
-  background: rgba(255, 255, 255, 0.28);
+#cabecalho .nav-link:hover,
+#cabecalho .nav-link:focus {
+  color: var(--branco);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
-.usuario-info {
-  margin-left: auto;
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.8);
-  flex-shrink: 0;
+#cabecalho .nav-link.active {
+  font-weight: 600;
+  color: var(--branco);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+#cabecalho .btn-outline-light {
+  --bs-btn-color: var(--branco);
+  --bs-btn-border-color: rgba(255, 255, 255, 0.55);
+  --bs-btn-hover-bg: rgba(255, 255, 255, 0.15);
+  --bs-btn-hover-border-color: var(--branco);
+  --bs-btn-hover-color: var(--branco);
+  --bs-btn-active-bg: rgba(255, 255, 255, 0.22);
+  --bs-btn-active-border-color: var(--branco);
+  --bs-btn-active-color: var(--branco);
+}
+
+/* Dropdown do perfil — paleta vinho via variáveis Bootstrap (sem azul padrão) */
+#cabecalho #dropdown-menu-perfil {
+  --bs-dropdown-link-color: var(--texto);
+  --bs-dropdown-link-hover-color: var(--vermelho-escuro);
+  --bs-dropdown-link-hover-bg: rgba(139, 26, 26, 0.08);
+  --bs-dropdown-link-active-color: var(--vermelho);
+  --bs-dropdown-link-active-bg: rgba(139, 26, 26, 0.12);
+  --bs-link-color: var(--texto);
+  --bs-link-hover-color: var(--vermelho-escuro);
+  min-width: 12rem;
+}
+
+#cabecalho #dropdown-menu-perfil .dropdown-item {
+  color: var(--texto);
+}
+
+#cabecalho #dropdown-menu-perfil .dropdown-item:hover,
+#cabecalho #dropdown-menu-perfil .dropdown-item:focus,
+#cabecalho #dropdown-menu-perfil .dropdown-item:focus-visible {
+  color: var(--vermelho-escuro);
+  background-color: rgba(139, 26, 26, 0.08);
+  outline: 0;
+  box-shadow: none;
+}
+
+/* Classe própria — evita conflito com .active do Bootstrap (azul primário) */
+#cabecalho #dropdown-menu-perfil .dropdown-item.dropdown-item-ativo,
+#cabecalho #dropdown-menu-perfil .dropdown-item.active {
+  color: var(--vermelho);
+  background-color: rgba(139, 26, 26, 0.12);
+}
+
+#cabecalho #dropdown-menu-perfil .dropdown-item.dropdown-item-ativo:hover,
+#cabecalho #dropdown-menu-perfil .dropdown-item.dropdown-item-ativo:focus,
+#cabecalho #dropdown-menu-perfil .dropdown-item.active:hover,
+#cabecalho #dropdown-menu-perfil .dropdown-item.active:focus {
+  color: var(--vermelho-escuro);
+  background-color: rgba(139, 26, 26, 0.16);
+}
+
+#cabecalho #dropdown-menu-perfil .dropdown-item.text-danger {
+  color: var(--erro);
+}
+
+#cabecalho #dropdown-menu-perfil .dropdown-item.text-danger:hover,
+#cabecalho #dropdown-menu-perfil .dropdown-item.text-danger:focus,
+#cabecalho #dropdown-menu-perfil .dropdown-item.text-danger:active {
+  color: var(--erro);
+  background-color: rgba(192, 57, 43, 0.1);
+}
+
+/* Botão do nome — btn-link do Bootstrap usa azul por padrão */
+#cabecalho #dropdown-perfil.btn-link {
+  --bs-link-color: var(--branco);
+  --bs-link-hover-color: var(--branco);
+  color: var(--branco);
+  text-decoration: none;
+}
+
+#dropdown-perfil:focus,
+#dropdown-perfil:focus-visible {
+  box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.15);
+  outline: 0;
 }
 
 

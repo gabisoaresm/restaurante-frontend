@@ -360,8 +360,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const bordaEstilo = qtdAtual > 0
                         ? "border: 2px solid var(--vermelho)"
                         : "border: 1px solid rgba(0,0,0,.125)";
+                    // Exibe a foto do item no topo do card, se disponível
+                    const imgHtml = item.imagem
+                        ? `<img src="${item.imagem}" class="card-img-top card-img-item"
+                                alt="${item.nome}">`
+                        : "";
                     col.innerHTML = `
                         <div class="card h-100 shadow-sm" style="${bordaEstilo}">
+                          ${imgHtml}
                           <div class="card-body d-flex flex-column p-4">
                             <h6 class="card-title fw-semibold mb-1">${item.nome}</h6>
                             <p class="card-text text-muted small flex-grow-1 my-2">${item.descricao}</p>
@@ -425,8 +431,14 @@ document.addEventListener("DOMContentLoaded", async () => {
                              </button>
                            </div>`
                         : "";
+                    // Exibe a foto do item no topo do card, se disponível
+                    const imgHtml = item.imagem
+                        ? `<img src="${item.imagem}" class="card-img-top card-img-item"
+                                alt="${item.nome}">`
+                        : "";
                     col.innerHTML = `
                         <div class="card h-100 shadow-sm border-0">
+                          ${imgHtml}
                           <div class="card-body d-flex flex-column p-4">
                             <div class="d-flex justify-content-between align-items-start mb-1">
                               <h6 class="card-title fw-semibold mb-0">${item.nome}</h6>

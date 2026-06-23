@@ -57,6 +57,25 @@
                 </div>
               </div>
 
+              <!-- Imagem atual (pré-visualização, populada via JS) -->
+              <div id="preview-imagem-atual" class="mb-3 d-none">
+                <p class="form-label fw-semibold mb-1">Foto atual</p>
+                <img id="img-atual" src="" alt="Foto atual do item"
+                     class="rounded border" style="max-height:140px; object-fit:cover;" />
+              </div>
+
+              <!-- Upload de nova imagem -->
+              <div class="campo mb-3">
+                <label for="imagem" class="form-label fw-semibold">
+                  <span id="label-imagem">Nova foto</span>
+                </label>
+                <input type="file" id="imagem" name="imagem" accept="image/*"
+                       class="form-control" />
+                <div class="form-text text-muted">
+                  Opcional. Deixe em branco para manter a foto atual.
+                </div>
+              </div>
+
               <!-- Disponível -->
               <div class="mb-4">
                 <div class="form-check">

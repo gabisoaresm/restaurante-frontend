@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const inputPreco  = document.getElementById("preco") as HTMLInputElement;
     const selectCat   = document.getElementById("categoria") as HTMLSelectElement;
     const checkDisp   = document.getElementById("disponivel") as HTMLInputElement;
+    const inputImagem = document.getElementById("imagem") as HTMLInputElement;
     const pErro       = document.getElementById("mensagem-erro") as HTMLParagraphElement;
     const btn         = form.querySelector("button[type='submit']") as HTMLButtonElement;
 
@@ -80,22 +81,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         btn.disabled    = true;
         btn.textContent = "Salvando…";
 
+        // Monta FormData para suportar upload de imagem via multipart/form-data.
+        // Não definir Content-Type manualmente — o browser insere o boundary correto.
+        const formData = new FormData();
+        formData.append("nome",       nomeVal);
+        formData.append("descricao",  descVal);
+        formData.append("preco",      precoVal);
+        formData.append("categoria",  catVal);
+        formData.append("disponivel", checkDisp.checked ? "true" : "false");
+
+        // Só adiciona imagem ao FormData se o gerente selecionou um arquivo
+        if (inputImagem.files && inputImagem.files.length > 0) {
+            formData.append("imagem", inputImagem.files[0]);
+        }
+
         try {
-            // Envia POST ao backend para criar o item com token de gerente
-            // O campo "categoria" deve ser o id inteiro, não o nome
+            // Envia POST ao backend como multipart/form-data com token de gerente
             const res = await fetch(`${BASE_URL}/api/cardapio/itens/`, {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json",
                     "Authorization": `${TOKEN_PREFIXO} ${token}`
+                    // Content-Type omitido intencionalmente — o browser define multipart/form-data + boundary
                 },
-                body: JSON.stringify({
-                    nome:       nomeVal,
-                    descricao:  descVal,
-                    preco:      precoVal,
-                    categoria:  Number(catVal),
-                    disponivel: checkDisp.checked
-                })
+                body: formData
             });
 
             const dados = await res.json() as Record<string, unknown>;

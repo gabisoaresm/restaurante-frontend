@@ -343,6 +343,15 @@ body {
 }
 
 
+/* ── Imagem dos cards de cardápio ─────────────────────────────────────────── */
+
+/* Altura uniforme para as fotos dos itens; object-fit mantém proporção sem distorcer */
+.card-img-item {
+  height: 180px;
+  object-fit: cover;
+}
+
+
 /* ── Cards de listagem (itens do cardápio, pedidos, etc.) ─────────────────── */
 
 .card-item {

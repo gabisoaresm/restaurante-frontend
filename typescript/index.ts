@@ -12,6 +12,7 @@ interface ItemCardapioSimples {
     preco: string;
     categoria: number;
     disponivel: boolean;
+    imagem: string | null;
 }
 
 // Aguarda autenticacao.ts terminar de renderizar o cabeçalho para que localStorage.tipo esteja disponível
@@ -145,8 +146,16 @@ document.addEventListener("DOMContentLoaded", async () => {
                     const col  = document.createElement("div");
                     col.className = "col-md-4 col-sm-6 fade-in";
                     const precoBR = Number(item.preco).toFixed(2).replace(".", ",");
+
+                    // Exibe a foto do item no topo do card, se disponível
+                    const imgHtml = item.imagem
+                        ? `<img src="${item.imagem}" class="card-img-top card-img-item"
+                                alt="${item.nome}">`
+                        : "";
+
                     col.innerHTML = `
                         <div class="card h-100 shadow-sm border-0">
+                          ${imgHtml}
                           <div class="card-body d-flex flex-column p-4">
                             <h6 class="card-title fw-semibold mb-1">${item.nome}</h6>
                             <p class="card-text text-muted small flex-grow-1 my-2">${item.descricao}</p>

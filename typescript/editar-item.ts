@@ -27,15 +27,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    const form        = document.getElementById("form-item") as HTMLFormElement;
-    const inputNome   = document.getElementById("nome") as HTMLInputElement;
-    const inputDesc   = document.getElementById("descricao") as HTMLTextAreaElement;
-    const inputPreco  = document.getElementById("preco") as HTMLInputElement;
-    const selectCat   = document.getElementById("categoria") as HTMLSelectElement;
-    const checkDisp   = document.getElementById("disponivel") as HTMLInputElement;
-    const subtitulo   = document.getElementById("subtitulo") as HTMLParagraphElement;
-    const pErro       = document.getElementById("mensagem-erro") as HTMLParagraphElement;
-    const btn         = form.querySelector("button[type='submit']") as HTMLButtonElement;
+    const form              = document.getElementById("form-item") as HTMLFormElement;
+    const inputNome         = document.getElementById("nome") as HTMLInputElement;
+    const inputDesc         = document.getElementById("descricao") as HTMLTextAreaElement;
+    const inputPreco        = document.getElementById("preco") as HTMLInputElement;
+    const selectCat         = document.getElementById("categoria") as HTMLSelectElement;
+    const checkDisp         = document.getElementById("disponivel") as HTMLInputElement;
+    const inputImagem       = document.getElementById("imagem") as HTMLInputElement;
+    const previewContainer  = document.getElementById("preview-imagem-atual") as HTMLDivElement;
+    const imgAtual          = document.getElementById("img-atual") as HTMLImageElement;
+    const labelImagem       = document.getElementById("label-imagem") as HTMLSpanElement;
+    const subtitulo         = document.getElementById("subtitulo") as HTMLParagraphElement;
+    const pErro             = document.getElementById("mensagem-erro") as HTMLParagraphElement;
+    const btn               = form.querySelector("button[type='submit']") as HTMLButtonElement;
 
     // Remove destaque de erro ao redigitar em cada campo
     [inputNome, inputDesc, inputPreco].forEach(campo => {
@@ -68,6 +72,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             preco: string;
             categoria: number;
             disponivel: boolean;
+            imagem: string | null;
         } = await resItem.json();
 
         // Popula o <select> com as categorias disponíveis, selecionando a do item atual
@@ -80,11 +85,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         // Pré-preenche os demais campos com os valores atuais do item
-        inputNome.value  = item.nome;
-        inputDesc.value  = item.descricao;
-        inputPreco.value = item.preco;
+        inputNome.value   = item.nome;
+        inputDesc.value   = item.descricao;
+        inputPreco.value  = item.preco;
         checkDisp.checked = item.disponivel;
         subtitulo.textContent = item.nome;
+
+        // Se o item já tem imagem, exibe a pré-visualização e ajusta o rótulo do campo
+        if (item.imagem) {
+            imgAtual.src = item.imagem;
+            previewContainer.classList.remove("d-none");
+            labelImagem.textContent = "Substituir foto";
+        }
 
     } catch {
         pErro.textContent = "Não foi possível carregar os dados do item.";
@@ -117,22 +129,30 @@ document.addEventListener("DOMContentLoaded", async () => {
         btn.disabled    = true;
         btn.textContent = "Salvando…";
 
+        // Monta FormData para suportar upload de imagem via multipart/form-data.
+        // Se nenhum arquivo novo for selecionado, o campo imagem não é enviado,
+        // e o backend preserva a imagem existente (campo optional no serializer).
+        const formData = new FormData();
+        formData.append("nome",       nomeVal);
+        formData.append("descricao",  descVal);
+        formData.append("preco",      precoVal);
+        formData.append("categoria",  catVal);
+        formData.append("disponivel", checkDisp.checked ? "true" : "false");
+
+        // Só inclui imagem nova se o gerente selecionou um arquivo diferente
+        if (inputImagem.files && inputImagem.files.length > 0) {
+            formData.append("imagem", inputImagem.files[0]);
+        }
+
         try {
-            // Envia PUT ao backend substituindo todos os campos do item
-            // O backend exige todos os campos no PUT (não usa PATCH para itens)
+            // Envia PUT ao backend como multipart/form-data substituindo todos os campos do item
             const res = await fetch(`${BASE_URL}/api/cardapio/itens/${id}/`, {
                 method: "PUT",
                 headers: {
-                    "Content-Type": "application/json",
                     "Authorization": `${TOKEN_PREFIXO} ${token}`
+                    // Content-Type omitido intencionalmente — o browser define multipart/form-data + boundary
                 },
-                body: JSON.stringify({
-                    nome:       nomeVal,
-                    descricao:  descVal,
-                    preco:      precoVal,
-                    categoria:  Number(catVal),
-                    disponivel: checkDisp.checked
-                })
+                body: formData
             });
 
             const dados = await res.json() as Record<string, unknown>;

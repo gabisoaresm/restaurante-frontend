@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <i class="bi bi-bag fs-2 text-muted d-block mb-3"></i>
                     <p class="fw-semibold mb-1">Você ainda não fez nenhum pedido.</p>
                     <p class="text-muted small mb-3">Acesse o cardápio e escolha seus itens.</p>
-                    <a href="criar-pedido.html" class="btn btn-danger btn-sm">
+                    <a href="cardapio.html" class="btn btn-danger btn-sm">
                       <i class="bi bi-plus-lg me-1"></i>Fazer um pedido agora
                     </a>
                   </div>

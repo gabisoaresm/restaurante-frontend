@@ -9,7 +9,7 @@ function renderizarCabecalhoLogado(usuario) {
     if (usuario.tipo === "cliente") {
         linksMenu = `
             <a href="cardapio.html">Cardápio</a>
-            <a href="criar-pedido.html">Novo Pedido</a>
+            <a href="carrinho.html">Carrinho</a>
             <a href="meus-pedidos.html">Meus Pedidos</a>
             <a href="trocar-senha.html">Trocar Senha</a>`;
     }

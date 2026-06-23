@@ -14,11 +14,13 @@ async function realizarLogout() {
             // Falha de rede: prossegue com o logout local mesmo sem confirmar no backend
         }
     }
-    // Remove todos os dados da sessão do armazenamento local
+    // Remove todos os dados da sessão do armazenamento local,
+    // incluindo o carrinho para não vazar dados entre usuários diferentes
     localStorage.removeItem("token");
     localStorage.removeItem("user_id");
     localStorage.removeItem("username");
     localStorage.removeItem("tipo");
+    localStorage.removeItem("carrinho");
     // Redireciona para a página de login após o logout
     window.location.href = "login.html";
 }

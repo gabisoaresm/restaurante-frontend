@@ -337,6 +337,18 @@ nav a:hover {
 }
 
 
+/* ── Barra de carrinho (rodapé fixo no cardápio para clientes) ────────────── */
+
+/* Apenas a animação de entrada/saída — layout e espaçamento via Bootstrap */
+.barra-carrinho {
+  transition: transform 0.25s ease;
+}
+
+.barra-carrinho.oculta {
+  transform: translateY(100%);
+}
+
+
 /* ── Páginas em construção (placeholders) ─────────────────────────────────── */
 
 .placeholder {

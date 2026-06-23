@@ -18,16 +18,17 @@ function renderizarCabecalhoLogado(usuario: DadosUsuario): void {
     if (usuario.tipo === "cliente") {
         linksMenu = `
             <a href="cardapio.html">Cardápio</a>
-            <a href="pedidos.html">Meus Pedidos</a>
+            <a href="criar-pedido.html">Novo Pedido</a>
+            <a href="meus-pedidos.html">Meus Pedidos</a>
             <a href="trocar-senha.html">Trocar Senha</a>`;
     } else if (usuario.tipo === "atendente") {
         linksMenu = `
-            <a href="pedidos.html">Fila de Pedidos</a>
+            <a href="fila-pedidos.html">Fila de Pedidos</a>
             <a href="trocar-senha.html">Trocar Senha</a>`;
     } else if (usuario.tipo === "gerente") {
         linksMenu = `
             <a href="cardapio.html">Gerenciar Cardápio</a>
-            <a href="pedidos.html">Pedidos</a>
+            <a href="pedidos-gerente.html">Pedidos</a>
             <a href="trocar-senha.html">Trocar Senha</a>`;
     }
 

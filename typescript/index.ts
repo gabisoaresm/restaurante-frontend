@@ -13,9 +13,10 @@ function aguardarCabecalhoIndex(): Promise<void> {
 }
 
 // Cria um card de ação clicável com ícone, título e descrição
-function criarCardAcao(href: string, icone: string, titulo: string, descricao: string): HTMLElement {
+// colClass permite ajustar o número de colunas por linha (default: 3 por linha em md+)
+function criarCardAcao(href: string, icone: string, titulo: string, descricao: string, colClass: string = "col-md-4 col-sm-6 fade-in"): HTMLElement {
     const col = document.createElement("div");
-    col.className = "col-md-4 col-sm-6 fade-in";
+    col.className = colClass;
     col.innerHTML = `
         <a href="${href}" class="text-decoration-none">
             <div class="card shadow-sm border-0 h-100 card-dashboard">
@@ -81,23 +82,35 @@ document.addEventListener("DOMContentLoaded", async () => {
         ));
 
     } else if (tipo === "gerente") {
+        // 4 cards → grade 2×2 em md, 4 em linha em lg
+        const col4 = "col-lg-3 col-md-6 col-sm-6 fade-in";
         divCards.appendChild(criarCardAcao(
             "cardapio.html",
             "bi-menu-button-wide",
             "Gerenciar Cardápio",
-            "Adicione, edite ou remova itens e categorias."
+            "Adicione, edite ou remova itens e categorias.",
+            col4
         ));
         divCards.appendChild(criarCardAcao(
             "pedidos-gerente.html",
             "bi-clipboard-data",
             "Ver Pedidos",
-            "Acompanhe todos os pedidos do restaurante."
+            "Acompanhe todos os pedidos do restaurante.",
+            col4
+        ));
+        divCards.appendChild(criarCardAcao(
+            "gerenciar-usuarios.html",
+            "bi-people",
+            "Gerenciar Usuários",
+            "Altere o tipo de perfil dos usuários cadastrados.",
+            col4
         ));
         divCards.appendChild(criarCardAcao(
             "perfil.html",
             "bi-person",
             "Meu Perfil",
-            "Edite seus dados pessoais e senha."
+            "Edite seus dados pessoais e senha.",
+            col4
         ));
 
     } else if (tipo === "atendente") {

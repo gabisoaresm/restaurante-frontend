@@ -15,9 +15,10 @@ function aguardarCabecalhoIndex() {
     });
 }
 // Cria um card de ação clicável com ícone, título e descrição
-function criarCardAcao(href, icone, titulo, descricao) {
+// colClass permite ajustar o número de colunas por linha (default: 3 por linha em md+)
+function criarCardAcao(href, icone, titulo, descricao, colClass = "col-md-4 col-sm-6 fade-in") {
     const col = document.createElement("div");
-    col.className = "col-md-4 col-sm-6 fade-in";
+    col.className = colClass;
     col.innerHTML = `
         <a href="${href}" class="text-decoration-none">
             <div class="card shadow-sm border-0 h-100 card-dashboard">
@@ -59,9 +60,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         divCards.appendChild(criarCardAcao("perfil.html", "bi-person", "Meu Perfil", "Edite seus dados pessoais e senha."));
     }
     else if (tipo === "gerente") {
-        divCards.appendChild(criarCardAcao("cardapio.html", "bi-menu-button-wide", "Gerenciar Cardápio", "Adicione, edite ou remova itens e categorias."));
-        divCards.appendChild(criarCardAcao("pedidos-gerente.html", "bi-clipboard-data", "Ver Pedidos", "Acompanhe todos os pedidos do restaurante."));
-        divCards.appendChild(criarCardAcao("perfil.html", "bi-person", "Meu Perfil", "Edite seus dados pessoais e senha."));
+        // 4 cards → grade 2×2 em md, 4 em linha em lg
+        const col4 = "col-lg-3 col-md-6 col-sm-6 fade-in";
+        divCards.appendChild(criarCardAcao("cardapio.html", "bi-menu-button-wide", "Gerenciar Cardápio", "Adicione, edite ou remova itens e categorias.", col4));
+        divCards.appendChild(criarCardAcao("pedidos-gerente.html", "bi-clipboard-data", "Ver Pedidos", "Acompanhe todos os pedidos do restaurante.", col4));
+        divCards.appendChild(criarCardAcao("gerenciar-usuarios.html", "bi-people", "Gerenciar Usuários", "Altere o tipo de perfil dos usuários cadastrados.", col4));
+        divCards.appendChild(criarCardAcao("perfil.html", "bi-person", "Meu Perfil", "Edite seus dados pessoais e senha.", col4));
     }
     else if (tipo === "atendente") {
         divCards.appendChild(criarCardAcao("fila-pedidos.html", "bi-list-ul", "Fila de Pedidos", "Veja a fila de pedidos e avance os status."));

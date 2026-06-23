@@ -205,8 +205,9 @@ function renderizarCabecalhoLogado(usuario: DadosUsuario): void {
         linksMenu = linkNav("fila-pedidos.html", "Fila de Pedidos");
     } else if (usuario.tipo === "gerente") {
         linksMenu = `
-                ${linkNav("cardapio.html", "Gerenciar Cardápio")}
-                ${linkNav("pedidos-gerente.html", "Pedidos")}`;
+                ${linkNav("cardapio.html", "Cardápio")}
+                ${linkNav("pedidos-gerente.html", "Pedidos")}
+                ${linkNav("gerenciar-usuarios.html", "Usuários")}`;
     }
 
     cabecalho.innerHTML = `

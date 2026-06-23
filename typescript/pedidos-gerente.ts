@@ -1,4 +1,4 @@
-// Visão gerencial de pedidos: lista todos os pedidos com filtros, avança status e permite excluir
+// Visão gerencial de pedidos: lista todos os pedidos com filtros e permite excluir
 
 interface ItemPedidoResposta {
     id: number;
@@ -22,14 +22,6 @@ interface ItemCardapioInfo {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-
-    // Próximo status válido no fluxo — apenas avança, nunca regride
-    const PROXIMO_STATUS: Record<string, string | null> = {
-        recebido:   "em_preparo",
-        em_preparo: "pronto",
-        pronto:     "entregue",
-        entregue:   null,
-    };
 
     const ROTULO_STATUS: Record<string, string> = {
         recebido:   "Recebido",
@@ -173,24 +165,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                    </p>`
                 : "";
 
-            const proximo = PROXIMO_STATUS[pedido.status];
-            // Gerente pode avançar o status e também excluir o pedido
+            // Gerente só pode excluir pedidos; avançar status é exclusivo do atendente
             const acoesHtml = `
-                <div class="d-flex align-items-center gap-2 pt-3 border-top flex-wrap">
-                  ${proximo
-                    ? `<span class="text-muted small me-auto">
-                         Próximo: <strong>${ROTULO_STATUS[proximo]}</strong>
-                       </span>
-                       <button class="btn btn-danger btn-sm btn-avancar-status"
-                               data-id="${pedido.id}" data-proximo="${proximo}">
-                         <i class="bi bi-arrow-right-circle me-1"></i>Avançar Status
-                       </button>`
-                    : `<span class="text-muted small me-auto">
-                         <i class="bi bi-check-circle me-1"></i>Entregue
-                       </span>`}
+                <div class="d-flex justify-content-end pt-3 border-top">
                   <button class="btn btn-outline-danger btn-sm btn-excluir-pedido"
                           data-id="${pedido.id}">
-                    <i class="bi bi-trash"></i>
+                    <i class="bi bi-trash me-1"></i>Excluir
                   </button>
                 </div>`;
 
@@ -219,41 +199,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             divLista.appendChild(card);
         }
-
-        // Vincula botão de avançar status
-        divLista.querySelectorAll<HTMLButtonElement>(".btn-avancar-status").forEach(btn => {
-            btn.addEventListener("click", async () => {
-                const id      = btn.dataset["id"]!;
-                const proximo = btn.dataset["proximo"]!;
-                btn.disabled    = true;
-                btn.textContent = "Salvando…";
-
-                try {
-                    // Envia PATCH ao backend para avançar para o próximo status
-                    const res = await fetch(`${BASE_URL}/api/pedidos/${id}/`, {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `${TOKEN_PREFIXO} ${token}`
-                        },
-                        body: JSON.stringify({ status: proximo })
-                    });
-
-                    if (res.ok) {
-                        void carregarPedidos();
-                    } else {
-                        const dados = await res.json() as Record<string, unknown>;
-                        pErro.textContent = String(dados["erro"] ?? "Erro ao atualizar o status.");
-                        btn.disabled    = false;
-                        btn.textContent = "Avançar Status";
-                    }
-                } catch {
-                    pErro.textContent = "Não foi possível conectar ao servidor.";
-                    btn.disabled    = false;
-                    btn.textContent = "Avançar Status";
-                }
-            });
-        });
 
         // Vincula botão de excluir pedido
         divLista.querySelectorAll<HTMLButtonElement>(".btn-excluir-pedido").forEach(btn => {

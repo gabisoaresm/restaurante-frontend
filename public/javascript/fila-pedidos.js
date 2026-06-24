@@ -78,8 +78,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderizarFiltros();
         if (!silencioso) {
             divCarregando.classList.remove("d-none");
-            divLista.innerHTML = "";
         }
+        // Sempre limpa a lista antes de renderizar para evitar duplicatas no refresh automático
+        divLista.innerHTML = "";
         pErro.textContent = "";
         // Monta a query string com os filtros selecionados
         const params = new URLSearchParams();

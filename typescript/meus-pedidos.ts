@@ -1,4 +1,5 @@
-// Lista os pedidos do cliente logado com itens, subtotais, total e status atual
+// Lista os pedidos do cliente logado com itens, subtotais, total e status atual.
+// O status é atualizado automaticamente a cada 30 segundos sem recarregar a página.
 
 interface ItemPedidoResposta {
     id: number;
@@ -75,29 +76,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const divLista      = document.getElementById("lista-pedidos") as HTMLDivElement;
     const pErro         = document.getElementById("mensagem-erro") as HTMLParagraphElement;
 
-    try {
-        // Busca pedidos do cliente e itens do cardápio em paralelo para cruzar nomes e preços
-        const [resPedidos, resItens] = await Promise.all([
-            fetch(`${BASE_URL}/api/pedidos/`, {
-                headers: { "Authorization": `${TOKEN_PREFIXO} ${token}` }
-            }),
-            fetch(`${BASE_URL}/api/cardapio/itens/`)
-        ]);
+    // Renderiza a lista de pedidos no DOM a partir dos dados já buscados
+    function renderizarPedidos(pedidos: PedidoResposta[], itemMap: Map<number, ItemCardapioInfo>): void {
 
-        if (!resPedidos.ok) {
-            divCarregando.classList.add("d-none");
-            pErro.textContent = "Não foi possível carregar os pedidos.";
-            return;
-        }
-
-        const pedidos: PedidoResposta[]       = await resPedidos.json();
-        const cardapioItens: ItemCardapioInfo[] = await resItens.json();
-
-        // Mapa de id → {nome, preco} para resolver nomes e preços dos itens do pedido
-        const itemMap = new Map<number, ItemCardapioInfo>();
-        for (const item of cardapioItens) itemMap.set(item.id, item);
-
-        divCarregando.classList.add("d-none");
+        divLista.innerHTML = "";
 
         // Exibe estado vazio se não houver pedidos
         if (pedidos.length === 0) {
@@ -186,9 +168,56 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             divLista.appendChild(card);
         }
-
-    } catch {
-        divCarregando.classList.add("d-none");
-        pErro.textContent = "Não foi possível conectar ao servidor.";
     }
+
+    // Busca pedidos e itens do cardápio e renderiza a lista.
+    // Quando silencioso=true, omite o spinner e os erros para não interromper o cliente.
+    async function carregarPedidos(silencioso: boolean = false): Promise<void> {
+        if (!silencioso) {
+            divCarregando.classList.remove("d-none");
+            divLista.innerHTML = "";
+            pErro.textContent = "";
+        }
+
+        try {
+            // Busca pedidos do cliente e itens do cardápio em paralelo para cruzar nomes e preços
+            const [resPedidos, resItens] = await Promise.all([
+                fetch(`${BASE_URL}/api/pedidos/`, {
+                    headers: { "Authorization": `${TOKEN_PREFIXO} ${token}` }
+                }),
+                fetch(`${BASE_URL}/api/cardapio/itens/`)
+            ]);
+
+            if (!resPedidos.ok) {
+                if (!silencioso) {
+                    divCarregando.classList.add("d-none");
+                    pErro.textContent = "Não foi possível carregar os pedidos.";
+                }
+                return;
+            }
+
+            const pedidos: PedidoResposta[]         = await resPedidos.json();
+            const cardapioItens: ItemCardapioInfo[]  = await resItens.json();
+
+            // Mapa de id → {nome, preco} para resolver nomes e preços dos itens do pedido
+            const itemMap = new Map<number, ItemCardapioInfo>();
+            for (const item of cardapioItens) itemMap.set(item.id, item);
+
+            if (!silencioso) divCarregando.classList.add("d-none");
+            renderizarPedidos(pedidos, itemMap);
+
+        } catch {
+            if (!silencioso) {
+                divCarregando.classList.add("d-none");
+                pErro.textContent = "Não foi possível conectar ao servidor.";
+            }
+        }
+    }
+
+    // Carregamento inicial
+    void carregarPedidos();
+
+    // Atualiza os pedidos automaticamente a cada 30 segundos sem recarregar a página.
+    // O modo silencioso evita piscar o spinner enquanto o cliente visualiza o histórico.
+    setInterval(() => { void carregarPedidos(true); }, 30_000);
 });

@@ -3,8 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const form            = document.getElementById("form-esqueci-senha") as HTMLFormElement;
     const mensagemErro    = document.getElementById("mensagem-erro")      as HTMLParagraphElement;
-    const mensagemSucesso = document.getElementById("mensagem-sucesso")   as HTMLParagraphElement;
     const btn             = form.querySelector("button[type='submit']")   as HTMLButtonElement;
+    const campoEmail      = document.getElementById("email")              as HTMLInputElement;
 
     // Remove destaque de erro do campo quando o usuário começa a digitar novamente
     form.querySelectorAll(".campo input").forEach(input => {
@@ -13,18 +13,40 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    const erroEmail = document.getElementById("erro-email") as HTMLDivElement;
+
+    // Valida o formato do e-mail ao sair do campo (antes mesmo de tentar enviar)
+    const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    campoEmail.addEventListener("blur", () => {
+        const val = campoEmail.value.trim();
+        if (val && !REGEX_EMAIL.test(val)) {
+            campoEmail.closest(".campo")?.classList.add("campo-invalido");
+            erroEmail.textContent = "Informe um e-mail válido.";
+            erroEmail.classList.remove("d-none");
+        }
+    });
+    // Esconde o erro inline ao redigitar o e-mail
+    campoEmail.addEventListener("input", () => {
+        erroEmail.textContent = "";
+        erroEmail.classList.add("d-none");
+    });
+
     form.addEventListener("submit", async (evento: Event) => {
         evento.preventDefault();
-        mensagemErro.textContent    = "";
-        mensagemSucesso.textContent = "";
+        mensagemErro.textContent = "";
 
-        const campoEmail = document.getElementById("email") as HTMLInputElement;
-        const email      = campoEmail.value.trim();
+        const email = campoEmail.value.trim();
 
-        // Validação local: destaca o campo de e-mail se vazio
+        // Validação local: destaca o campo de e-mail se vazio ou com formato inválido
         if (!email) {
             campoEmail.closest(".campo")?.classList.add("campo-invalido");
             mensagemErro.textContent = "Informe seu e-mail.";
+            return;
+        }
+        if (!REGEX_EMAIL.test(email)) {
+            campoEmail.closest(".campo")?.classList.add("campo-invalido");
+            erroEmail.textContent = "Informe um e-mail válido.";
+            erroEmail.classList.remove("d-none");
             return;
         }
 
@@ -41,9 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             if (resposta.ok) {
-                // Informa ao usuário e redireciona para a página de confirmação após 2 segundos
-                mensagemSucesso.textContent =
-                    "Se o e-mail estiver cadastrado, você receberá as instruções em instantes. Redirecionando…";
+                // Exibe toast e redireciona para a página de confirmação após 2 segundos
+                mostrarToast("Se o e-mail estiver cadastrado, você receberá as instruções em instantes.");
                 btn.textContent = "Redirecionando…";
                 setTimeout(() => {
                     window.location.href = "redefinir-senha.html";

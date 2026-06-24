@@ -267,6 +267,79 @@ body {
 }
 
 
+/* ── Indicador de força de senha ─────────────────────────────────────────── */
+
+.forca-senha {
+  margin-top: 0.5rem;
+}
+
+.forca-senha-barra {
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.forca-senha-preenchimento {
+  height: 100%;
+  width: 0;
+  border-radius: 2px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.forca-fraca  { background-color: var(--erro); }
+.forca-media  { background-color: #e67e22; }
+.forca-forte  { background-color: #1a7a3c; }
+
+.forca-senha-rotulo {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+
+/* ── Toast de notificação ─────────────────────────────────────────────────── */
+
+.toast-wrapper {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast-item {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  font-size: 0.9rem;
+  font-weight: 500;
+  max-width: 340px;
+  pointer-events: auto;
+  animation: toast-entrar 0.3s ease;
+}
+
+.toast-item-sucesso { background-color: #1a7a3c; color: #fff; }
+.toast-item-erro    { background-color: var(--erro); color: #fff; }
+
+@keyframes toast-entrar {
+  from { opacity: 0; transform: translateY(0.75rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes toast-sair {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(0.75rem); }
+}
+
+.toast-saindo {
+  animation: toast-sair 0.3s ease forwards;
+}
+
+
 /* ── Dois campos lado a lado (ex: nome + sobrenome) ───────────────────────── */
 
 .campos-linha {

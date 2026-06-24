@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const inputLastName = document.getElementById("last_name");
     const inputEmail = document.getElementById("email");
     const pErro = document.getElementById("mensagem-erro");
-    const pSucesso = document.getElementById("mensagem-sucesso");
     const btn = form.querySelector("button[type='submit']");
     // Remove o destaque de erro ao redigitar em qualquer campo
     [inputFirstName, inputLastName, inputEmail].forEach(input => {
@@ -30,7 +29,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             var _a;
             (_a = input.closest(".campo")) === null || _a === void 0 ? void 0 : _a.classList.remove("campo-invalido");
             pErro.textContent = "";
-            pSucesso.textContent = "";
         });
     });
     // Mapeamentos para o badge de tipo de perfil
@@ -84,7 +82,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         var _a, _b, _c, _d;
         evento.preventDefault();
         pErro.textContent = "";
-        pSucesso.textContent = "";
         const firstName = inputFirstName.value.trim();
         const lastName = inputLastName.value.trim();
         const email = inputEmail.value.trim();
@@ -124,7 +121,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // Atualiza a seção de leitura com os novos valores
                 spanNome.textContent = [firstName, lastName].filter(Boolean).join(" ");
                 spanEmail.textContent = email;
-                pSucesso.textContent = "Dados atualizados com sucesso!";
+                mostrarToast("Dados atualizados com sucesso!");
             }
             else {
                 pErro.textContent = (_d = dados["erro"]) !== null && _d !== void 0 ? _d : "Erro ao salvar as alterações.";

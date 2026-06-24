@@ -36,7 +36,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const inputLastName  = document.getElementById("last_name")         as HTMLInputElement;
     const inputEmail     = document.getElementById("email")             as HTMLInputElement;
     const pErro          = document.getElementById("mensagem-erro")     as HTMLParagraphElement;
-    const pSucesso       = document.getElementById("mensagem-sucesso")  as HTMLParagraphElement;
     const btn            = form.querySelector("button[type='submit']")  as HTMLButtonElement;
 
     // Remove o destaque de erro ao redigitar em qualquer campo
@@ -44,7 +43,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         input.addEventListener("input", () => {
             input.closest(".campo")?.classList.remove("campo-invalido");
             pErro.textContent = "";
-            pSucesso.textContent = "";
         });
     });
 
@@ -104,8 +102,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Envia as alterações dos dados pessoais ao backend
     form.addEventListener("submit", async (evento: Event) => {
         evento.preventDefault();
-        pErro.textContent    = "";
-        pSucesso.textContent = "";
+        pErro.textContent = "";
 
         const firstName = inputFirstName.value.trim();
         const lastName  = inputLastName.value.trim();
@@ -139,7 +136,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 // Atualiza a seção de leitura com os novos valores
                 spanNome.textContent  = [firstName, lastName].filter(Boolean).join(" ");
                 spanEmail.textContent = email;
-                pSucesso.textContent  = "Dados atualizados com sucesso!";
+                mostrarToast("Dados atualizados com sucesso!");
             } else {
                 pErro.textContent = (dados["erro"] as string) ?? "Erro ao salvar as alterações.";
             }

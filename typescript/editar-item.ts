@@ -27,19 +27,36 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    const form              = document.getElementById("form-item") as HTMLFormElement;
-    const inputNome         = document.getElementById("nome") as HTMLInputElement;
-    const inputDesc         = document.getElementById("descricao") as HTMLTextAreaElement;
-    const inputPreco        = document.getElementById("preco") as HTMLInputElement;
-    const selectCat         = document.getElementById("categoria") as HTMLSelectElement;
-    const checkDisp         = document.getElementById("disponivel") as HTMLInputElement;
-    const inputImagem       = document.getElementById("imagem") as HTMLInputElement;
-    const previewContainer  = document.getElementById("preview-imagem-atual") as HTMLDivElement;
-    const imgAtual          = document.getElementById("img-atual") as HTMLImageElement;
-    const labelImagem       = document.getElementById("label-imagem") as HTMLSpanElement;
-    const subtitulo         = document.getElementById("subtitulo") as HTMLParagraphElement;
-    const pErro             = document.getElementById("mensagem-erro") as HTMLParagraphElement;
-    const btn               = form.querySelector("button[type='submit']") as HTMLButtonElement;
+    const form             = document.getElementById("form-item")            as HTMLFormElement;
+    const inputNome        = document.getElementById("nome")                 as HTMLInputElement;
+    const inputDesc        = document.getElementById("descricao")            as HTMLTextAreaElement;
+    const inputPreco       = document.getElementById("preco")                as HTMLInputElement;
+    const selectCat        = document.getElementById("categoria")            as HTMLSelectElement;
+    const checkDisp        = document.getElementById("disponivel")           as HTMLInputElement;
+    const inputImagem      = document.getElementById("imagem")               as HTMLInputElement;
+    const previewContainer = document.getElementById("preview-imagem-atual") as HTMLDivElement;
+    const imgAtual         = document.getElementById("img-atual")            as HTMLImageElement;
+    const btnExcluirImg    = document.getElementById("btn-excluir-imagem")   as HTMLButtonElement;
+    const divPreviewNova   = document.getElementById("preview-imagem-nova")  as HTMLDivElement;
+    const imgPreviewNova   = document.getElementById("img-preview-nova")     as HTMLImageElement;
+    const labelImagem      = document.getElementById("label-imagem")         as HTMLSpanElement;
+    const subtitulo        = document.getElementById("subtitulo")            as HTMLParagraphElement;
+    const pErro            = document.getElementById("mensagem-erro")        as HTMLParagraphElement;
+    const btn              = form.querySelector("button[type='submit']")      as HTMLButtonElement;
+    const contadorDesc     = document.getElementById("contador-descricao")   as HTMLDivElement;
+
+    // Atualiza o contador de caracteres da descrição em tempo real
+    const MAX_DESC = 300;
+    function atualizarContadorDesc(): void {
+        const atual = inputDesc.value.length;
+        contadorDesc.textContent = `${atual} / ${MAX_DESC} caracteres`;
+        contadorDesc.classList.toggle("text-danger", atual > MAX_DESC);
+        contadorDesc.classList.toggle("text-muted", atual <= MAX_DESC);
+    }
+    inputDesc.addEventListener("input", atualizarContadorDesc);
+
+    // Controla se o gerente pediu para remover a imagem atual
+    let removerImagem = false;
 
     // Remove destaque de erro ao redigitar em cada campo
     [inputNome, inputDesc, inputPreco].forEach(campo => {
@@ -49,6 +66,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     selectCat.addEventListener("change", () => {
         selectCat.closest(".campo")?.classList.remove("campo-invalido");
+    });
+
+    // Exibe preview da nova imagem assim que o gerente seleciona um arquivo
+    inputImagem.addEventListener("change", () => {
+        if (inputImagem.files && inputImagem.files.length > 0) {
+            // createObjectURL gera URL temporária local — sem upload, sem servidor
+            imgPreviewNova.src = URL.createObjectURL(inputImagem.files[0]);
+            divPreviewNova.classList.remove("d-none");
+            // Se o gerente seleciona uma nova foto, cancela automaticamente a exclusão
+            removerImagem = false;
+        } else {
+            divPreviewNova.classList.add("d-none");
+            imgPreviewNova.src = "";
+        }
+    });
+
+    // Marca a imagem atual para exclusão e oculta o preview (só efetuado ao salvar)
+    btnExcluirImg.addEventListener("click", () => {
+        removerImagem = true;
+        previewContainer.classList.add("d-none");
+        // Limpa qualquer arquivo selecionado e oculta o preview da nova foto
+        inputImagem.value = "";
+        divPreviewNova.classList.add("d-none");
+        imgPreviewNova.src = "";
+        labelImagem.textContent = "Nova foto";
     });
 
     // Carrega categorias e dados do item em paralelo para pré-preencher o formulário
@@ -78,7 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Popula o <select> com as categorias disponíveis, selecionando a do item atual
         for (const cat of categorias) {
             const opt = document.createElement("option");
-            opt.value    = String(cat.id);
+            opt.value       = String(cat.id);
             opt.textContent = cat.nome;
             if (cat.id === item.categoria) opt.selected = true;
             selectCat.appendChild(opt);
@@ -90,8 +132,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         inputPreco.value  = item.preco;
         checkDisp.checked = item.disponivel;
         subtitulo.textContent = item.nome;
+        // Inicializa o contador com o tamanho da descrição já carregada
+        atualizarContadorDesc();
 
-        // Se o item já tem imagem, exibe a pré-visualização e ajusta o rótulo do campo
+        // Se o item já tem imagem, exibe o preview atual e ajusta o rótulo do campo
         if (item.imagem) {
             imgAtual.src = item.imagem;
             previewContainer.classList.remove("d-none");
@@ -115,7 +159,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Validação local: todos os campos obrigatórios
         let invalido = false;
         if (!nomeVal)  { inputNome.closest(".campo")?.classList.add("campo-invalido");  invalido = true; }
-        if (!descVal)  { inputDesc.closest(".campo")?.classList.add("campo-invalido");  invalido = true; }
+        if (!descVal || descVal.length > MAX_DESC) { inputDesc.closest(".campo")?.classList.add("campo-invalido");  invalido = true; }
         if (!precoVal || Number(precoVal) < 0) {
             inputPreco.closest(".campo")?.classList.add("campo-invalido");
             invalido = true;
@@ -124,14 +168,19 @@ document.addEventListener("DOMContentLoaded", async () => {
             selectCat.closest(".campo")?.classList.add("campo-invalido");
             invalido = true;
         }
-        if (invalido) { pErro.textContent = "Preencha todos os campos obrigatórios."; return; }
+        if (invalido) {
+            pErro.textContent = descVal.length > MAX_DESC
+                ? `A descrição não pode ultrapassar ${MAX_DESC} caracteres.`
+                : "Preencha todos os campos obrigatórios.";
+            return;
+        }
 
         btn.disabled    = true;
         btn.textContent = "Salvando…";
 
         // Monta FormData para suportar upload de imagem via multipart/form-data.
-        // Se nenhum arquivo novo for selecionado, o campo imagem não é enviado,
-        // e o backend preserva a imagem existente (campo optional no serializer).
+        // Se nenhum arquivo novo for selecionado e removerImagem=false, o backend
+        // preserva a imagem existente (campo optional no serializer).
         const formData = new FormData();
         formData.append("nome",       nomeVal);
         formData.append("descricao",  descVal);
@@ -139,10 +188,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         formData.append("categoria",  catVal);
         formData.append("disponivel", checkDisp.checked ? "true" : "false");
 
-        // Só inclui imagem nova se o gerente selecionou um arquivo diferente
-        if (inputImagem.files && inputImagem.files.length > 0) {
-            formData.append("imagem", inputImagem.files[0]);
+        const temNovaImagem = inputImagem.files && inputImagem.files.length > 0;
+
+        if (temNovaImagem) {
+            // Nova imagem selecionada — substitui a atual
+            formData.append("imagem", inputImagem.files![0]);
+        } else if (removerImagem) {
+            // Gerente clicou em "Excluir foto" sem selecionar substituta — sinaliza remoção
+            formData.append("remover_imagem", "true");
         }
+        // Se nenhum dos dois casos, o backend mantém a imagem existente
 
         try {
             // Envia PUT ao backend como multipart/form-data substituindo todos os campos do item

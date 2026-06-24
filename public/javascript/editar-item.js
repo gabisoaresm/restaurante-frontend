@@ -35,10 +35,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     const inputImagem = document.getElementById("imagem");
     const previewContainer = document.getElementById("preview-imagem-atual");
     const imgAtual = document.getElementById("img-atual");
+    const btnExcluirImg = document.getElementById("btn-excluir-imagem");
+    const divPreviewNova = document.getElementById("preview-imagem-nova");
+    const imgPreviewNova = document.getElementById("img-preview-nova");
     const labelImagem = document.getElementById("label-imagem");
     const subtitulo = document.getElementById("subtitulo");
     const pErro = document.getElementById("mensagem-erro");
     const btn = form.querySelector("button[type='submit']");
+    const contadorDesc = document.getElementById("contador-descricao");
+    // Atualiza o contador de caracteres da descrição em tempo real
+    const MAX_DESC = 300;
+    function atualizarContadorDesc() {
+        const atual = inputDesc.value.length;
+        contadorDesc.textContent = `${atual} / ${MAX_DESC} caracteres`;
+        contadorDesc.classList.toggle("text-danger", atual > MAX_DESC);
+        contadorDesc.classList.toggle("text-muted", atual <= MAX_DESC);
+    }
+    inputDesc.addEventListener("input", atualizarContadorDesc);
+    // Controla se o gerente pediu para remover a imagem atual
+    let removerImagem = false;
     // Remove destaque de erro ao redigitar em cada campo
     [inputNome, inputDesc, inputPreco].forEach(campo => {
         campo.addEventListener("input", () => {
@@ -49,6 +64,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     selectCat.addEventListener("change", () => {
         var _a;
         (_a = selectCat.closest(".campo")) === null || _a === void 0 ? void 0 : _a.classList.remove("campo-invalido");
+    });
+    // Exibe preview da nova imagem assim que o gerente seleciona um arquivo
+    inputImagem.addEventListener("change", () => {
+        if (inputImagem.files && inputImagem.files.length > 0) {
+            // createObjectURL gera URL temporária local — sem upload, sem servidor
+            imgPreviewNova.src = URL.createObjectURL(inputImagem.files[0]);
+            divPreviewNova.classList.remove("d-none");
+            // Se o gerente seleciona uma nova foto, cancela automaticamente a exclusão
+            removerImagem = false;
+        }
+        else {
+            divPreviewNova.classList.add("d-none");
+            imgPreviewNova.src = "";
+        }
+    });
+    // Marca a imagem atual para exclusão e oculta o preview (só efetuado ao salvar)
+    btnExcluirImg.addEventListener("click", () => {
+        removerImagem = true;
+        previewContainer.classList.add("d-none");
+        // Limpa qualquer arquivo selecionado e oculta o preview da nova foto
+        inputImagem.value = "";
+        divPreviewNova.classList.add("d-none");
+        imgPreviewNova.src = "";
+        labelImagem.textContent = "Nova foto";
     });
     // Carrega categorias e dados do item em paralelo para pré-preencher o formulário
     try {
@@ -78,7 +117,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         inputPreco.value = item.preco;
         checkDisp.checked = item.disponivel;
         subtitulo.textContent = item.nome;
-        // Se o item já tem imagem, exibe a pré-visualização e ajusta o rótulo do campo
+        // Inicializa o contador com o tamanho da descrição já carregada
+        atualizarContadorDesc();
+        // Se o item já tem imagem, exibe o preview atual e ajusta o rótulo do campo
         if (item.imagem) {
             imgAtual.src = item.imagem;
             previewContainer.classList.remove("d-none");
@@ -103,7 +144,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             (_a = inputNome.closest(".campo")) === null || _a === void 0 ? void 0 : _a.classList.add("campo-invalido");
             invalido = true;
         }
-        if (!descVal) {
+        if (!descVal || descVal.length > MAX_DESC) {
             (_b = inputDesc.closest(".campo")) === null || _b === void 0 ? void 0 : _b.classList.add("campo-invalido");
             invalido = true;
         }
@@ -116,24 +157,32 @@ document.addEventListener("DOMContentLoaded", async () => {
             invalido = true;
         }
         if (invalido) {
-            pErro.textContent = "Preencha todos os campos obrigatórios.";
+            pErro.textContent = descVal.length > MAX_DESC
+                ? `A descrição não pode ultrapassar ${MAX_DESC} caracteres.`
+                : "Preencha todos os campos obrigatórios.";
             return;
         }
         btn.disabled = true;
         btn.textContent = "Salvando…";
         // Monta FormData para suportar upload de imagem via multipart/form-data.
-        // Se nenhum arquivo novo for selecionado, o campo imagem não é enviado,
-        // e o backend preserva a imagem existente (campo optional no serializer).
+        // Se nenhum arquivo novo for selecionado e removerImagem=false, o backend
+        // preserva a imagem existente (campo optional no serializer).
         const formData = new FormData();
         formData.append("nome", nomeVal);
         formData.append("descricao", descVal);
         formData.append("preco", precoVal);
         formData.append("categoria", catVal);
         formData.append("disponivel", checkDisp.checked ? "true" : "false");
-        // Só inclui imagem nova se o gerente selecionou um arquivo diferente
-        if (inputImagem.files && inputImagem.files.length > 0) {
+        const temNovaImagem = inputImagem.files && inputImagem.files.length > 0;
+        if (temNovaImagem) {
+            // Nova imagem selecionada — substitui a atual
             formData.append("imagem", inputImagem.files[0]);
         }
+        else if (removerImagem) {
+            // Gerente clicou em "Excluir foto" sem selecionar substituta — sinaliza remoção
+            formData.append("remover_imagem", "true");
+        }
+        // Se nenhum dos dois casos, o backend mantém a imagem existente
         try {
             // Envia PUT ao backend como multipart/form-data substituindo todos os campos do item
             const res = await fetch(`${BASE_URL}/api/cardapio/itens/${id}/`, {

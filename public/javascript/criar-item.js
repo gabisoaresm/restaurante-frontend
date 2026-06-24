@@ -28,6 +28,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     const inputImagem = document.getElementById("imagem");
     const pErro = document.getElementById("mensagem-erro");
     const btn = form.querySelector("button[type='submit']");
+    const divPreview = document.getElementById("preview-imagem-nova");
+    const imgPreview = document.getElementById("img-preview-nova");
+    const contadorDesc = document.getElementById("contador-descricao");
+    // Atualiza o contador de caracteres da descrição em tempo real
+    const MAX_DESC = 300;
+    function atualizarContadorDesc() {
+        const atual = inputDesc.value.length;
+        contadorDesc.textContent = `${atual} / ${MAX_DESC} caracteres`;
+        contadorDesc.classList.toggle("text-danger", atual > MAX_DESC);
+        contadorDesc.classList.toggle("text-muted", atual <= MAX_DESC);
+    }
+    inputDesc.addEventListener("input", atualizarContadorDesc);
+    // Exibe a pré-visualização da imagem assim que o gerente seleciona o arquivo
+    inputImagem.addEventListener("change", () => {
+        if (inputImagem.files && inputImagem.files.length > 0) {
+            // createObjectURL cria uma URL temporária local — sem upload, sem servidor
+            imgPreview.src = URL.createObjectURL(inputImagem.files[0]);
+            divPreview.classList.remove("d-none");
+        }
+        else {
+            divPreview.classList.add("d-none");
+            imgPreview.src = "";
+        }
+    });
     // Remove destaque de erro ao redigitar em cada campo
     [inputNome, inputDesc, inputPreco].forEach(campo => {
         campo.addEventListener("input", () => {
@@ -68,7 +92,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             (_a = inputNome.closest(".campo")) === null || _a === void 0 ? void 0 : _a.classList.add("campo-invalido");
             invalido = true;
         }
-        if (!descVal) {
+        if (!descVal || descVal.length > MAX_DESC) {
             (_b = inputDesc.closest(".campo")) === null || _b === void 0 ? void 0 : _b.classList.add("campo-invalido");
             invalido = true;
         }
@@ -81,7 +105,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             invalido = true;
         }
         if (invalido) {
-            pErro.textContent = "Preencha todos os campos obrigatórios.";
+            pErro.textContent = descVal.length > MAX_DESC
+                ? `A descrição não pode ultrapassar ${MAX_DESC} caracteres.`
+                : "Preencha todos os campos obrigatórios.";
             return;
         }
         btn.disabled = true;

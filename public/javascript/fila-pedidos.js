@@ -72,11 +72,14 @@ document.addEventListener("DOMContentLoaded", async () => {
             divFiltrosStatus.appendChild(btn);
         }
     }
-    // Busca pedidos do backend aplicando os filtros ativos de status e data
-    async function carregarPedidos() {
+    // Busca pedidos do backend aplicando os filtros ativos de status e data.
+    // Quando silencioso=true, omite o spinner e os erros para não interromper o atendente.
+    async function carregarPedidos(silencioso = false) {
         renderizarFiltros();
-        divCarregando.classList.remove("d-none");
-        divLista.innerHTML = "";
+        if (!silencioso) {
+            divCarregando.classList.remove("d-none");
+            divLista.innerHTML = "";
+        }
         pErro.textContent = "";
         // Monta a query string com os filtros selecionados
         const params = new URLSearchParams();
@@ -94,13 +97,17 @@ document.addEventListener("DOMContentLoaded", async () => {
                 fetch(`${BASE_URL}/api/cardapio/itens/`)
             ]);
             if (resPedidos.status === 403) {
-                pErro.textContent = "Acesso negado. Apenas atendentes e gerentes podem ver a fila de pedidos.";
-                divCarregando.classList.add("d-none");
+                if (!silencioso) {
+                    pErro.textContent = "Acesso negado. Apenas atendentes e gerentes podem ver a fila de pedidos.";
+                    divCarregando.classList.add("d-none");
+                }
                 return;
             }
             if (!resPedidos.ok) {
-                pErro.textContent = "Não foi possível carregar os pedidos.";
-                divCarregando.classList.add("d-none");
+                if (!silencioso) {
+                    pErro.textContent = "Não foi possível carregar os pedidos.";
+                    divCarregando.classList.add("d-none");
+                }
                 return;
             }
             const pedidos = await resPedidos.json();
@@ -109,12 +116,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             const itemMap = new Map();
             for (const item of cardapioItens)
                 itemMap.set(item.id, item.nome);
-            divCarregando.classList.add("d-none");
+            if (!silencioso)
+                divCarregando.classList.add("d-none");
             renderizarPedidos(pedidos, itemMap);
         }
         catch (_a) {
-            divCarregando.classList.add("d-none");
-            pErro.textContent = "Não foi possível conectar ao servidor.";
+            if (!silencioso) {
+                divCarregando.classList.add("d-none");
+                pErro.textContent = "Não foi possível conectar ao servidor.";
+            }
         }
     }
     // Renderiza a lista de pedidos no DOM
@@ -240,4 +250,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
     // Carregamento inicial da fila
     void carregarPedidos();
+    // Atualiza a fila automaticamente a cada 30 segundos sem recarregar a página.
+    // O modo silencioso evita piscar o spinner enquanto o atendente interage com a tela.
+    setInterval(() => { void carregarPedidos(true); }, 30000);
 });

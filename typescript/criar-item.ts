@@ -19,15 +19,40 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    const form        = document.getElementById("form-item") as HTMLFormElement;
-    const inputNome   = document.getElementById("nome") as HTMLInputElement;
-    const inputDesc   = document.getElementById("descricao") as HTMLTextAreaElement;
-    const inputPreco  = document.getElementById("preco") as HTMLInputElement;
-    const selectCat   = document.getElementById("categoria") as HTMLSelectElement;
-    const checkDisp   = document.getElementById("disponivel") as HTMLInputElement;
-    const inputImagem = document.getElementById("imagem") as HTMLInputElement;
-    const pErro       = document.getElementById("mensagem-erro") as HTMLParagraphElement;
-    const btn         = form.querySelector("button[type='submit']") as HTMLButtonElement;
+    const form            = document.getElementById("form-item") as HTMLFormElement;
+    const inputNome       = document.getElementById("nome") as HTMLInputElement;
+    const inputDesc       = document.getElementById("descricao") as HTMLTextAreaElement;
+    const inputPreco      = document.getElementById("preco") as HTMLInputElement;
+    const selectCat       = document.getElementById("categoria") as HTMLSelectElement;
+    const checkDisp       = document.getElementById("disponivel") as HTMLInputElement;
+    const inputImagem     = document.getElementById("imagem") as HTMLInputElement;
+    const pErro           = document.getElementById("mensagem-erro") as HTMLParagraphElement;
+    const btn             = form.querySelector("button[type='submit']") as HTMLButtonElement;
+    const divPreview      = document.getElementById("preview-imagem-nova") as HTMLDivElement;
+    const imgPreview      = document.getElementById("img-preview-nova") as HTMLImageElement;
+    const contadorDesc    = document.getElementById("contador-descricao") as HTMLDivElement;
+
+    // Atualiza o contador de caracteres da descrição em tempo real
+    const MAX_DESC = 300;
+    function atualizarContadorDesc(): void {
+        const atual = inputDesc.value.length;
+        contadorDesc.textContent = `${atual} / ${MAX_DESC} caracteres`;
+        contadorDesc.classList.toggle("text-danger", atual > MAX_DESC);
+        contadorDesc.classList.toggle("text-muted", atual <= MAX_DESC);
+    }
+    inputDesc.addEventListener("input", atualizarContadorDesc);
+
+    // Exibe a pré-visualização da imagem assim que o gerente seleciona o arquivo
+    inputImagem.addEventListener("change", () => {
+        if (inputImagem.files && inputImagem.files.length > 0) {
+            // createObjectURL cria uma URL temporária local — sem upload, sem servidor
+            imgPreview.src = URL.createObjectURL(inputImagem.files[0]);
+            divPreview.classList.remove("d-none");
+        } else {
+            divPreview.classList.add("d-none");
+            imgPreview.src = "";
+        }
+    });
 
     // Remove destaque de erro ao redigitar em cada campo
     [inputNome, inputDesc, inputPreco].forEach(campo => {
@@ -67,7 +92,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Validação local: todos os campos obrigatórios
         let invalido = false;
         if (!nomeVal)  { inputNome.closest(".campo")?.classList.add("campo-invalido");  invalido = true; }
-        if (!descVal)  { inputDesc.closest(".campo")?.classList.add("campo-invalido");  invalido = true; }
+        if (!descVal || descVal.length > MAX_DESC) { inputDesc.closest(".campo")?.classList.add("campo-invalido");  invalido = true; }
         if (!precoVal || Number(precoVal) < 0) {
             inputPreco.closest(".campo")?.classList.add("campo-invalido");
             invalido = true;
@@ -76,7 +101,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             selectCat.closest(".campo")?.classList.add("campo-invalido");
             invalido = true;
         }
-        if (invalido) { pErro.textContent = "Preencha todos os campos obrigatórios."; return; }
+        if (invalido) {
+            pErro.textContent = descVal.length > MAX_DESC
+                ? `A descrição não pode ultrapassar ${MAX_DESC} caracteres.`
+                : "Preencha todos os campos obrigatórios.";
+            return;
+        }
 
         btn.disabled    = true;
         btn.textContent = "Salvando…";

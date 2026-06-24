@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const form            = document.getElementById("form-trocar-senha") as HTMLFormElement;
     const mensagemErro    = document.getElementById("mensagem-erro")      as HTMLParagraphElement;
-    const mensagemSucesso = document.getElementById("mensagem-sucesso")   as HTMLParagraphElement;
     const btn             = form.querySelector("button[type='submit']")   as HTMLButtonElement;
 
     // Remove destaque de erro do campo quando o usuário começa a digitar novamente
@@ -23,8 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("submit", async (evento: Event) => {
         evento.preventDefault();
-        mensagemErro.textContent    = "";
-        mensagemSucesso.textContent = "";
+        mensagemErro.textContent = "";
 
         const campoOld  = document.getElementById("old_password")  as HTMLInputElement;
         const campoNew1 = document.getElementById("new_password1") as HTMLInputElement;
@@ -75,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (resposta.ok) {
                 // O backend invalida o token antigo e retorna um novo — obrigatório atualizar
                 localStorage.setItem("token", dados.token);
-                mensagemSucesso.textContent = "Senha alterada com sucesso!";
+                mostrarToast("Senha alterada com sucesso!");
                 form.reset();
             } else {
                 mensagemErro.textContent = dados.erro ?? "Erro ao alterar a senha.";

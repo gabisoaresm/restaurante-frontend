@@ -58,9 +58,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     divCarregando.classList.add("d-none");
 
-    const token    = localStorage.getItem("token");
-    const tipo     = localStorage.getItem("tipo");
-    const username = localStorage.getItem("username");
+    const token      = localStorage.getItem("token");
+    const tipo       = localStorage.getItem("tipo");
+    const username   = localStorage.getItem("username");
+    const firstName  = localStorage.getItem("first_name");
+    // Exibe o primeiro nome cadastrado; se não houver, usa o username como fallback
+    const nomeBoasVindas = (firstName && firstName.trim()) ? firstName.trim() : (username ?? "");
 
     if (!token || !tipo) {
         // Visitante não autenticado — exibe hero compacto e cardápio em modo somente leitura
@@ -182,7 +185,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     divLogada.classList.remove("d-none");
 
     divBoasVindas.innerHTML = `
-        <h2 class="fw-semibold mb-1">Bem-vindo, ${username}!</h2>
+        <h2 class="fw-semibold mb-1">Bem-vindo, ${nomeBoasVindas}!</h2>
         <p class="text-muted mb-0">O que você deseja fazer hoje?</p>`;
 
     // Monta os cards de acesso rápido conforme o tipo de perfil

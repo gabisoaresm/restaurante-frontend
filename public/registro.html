@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Registrar — Restaurante</title>
+  <title>Registrar — Cucina Italiana</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
   <link rel="stylesheet" href="css/estilos.css" />
@@ -62,6 +62,7 @@
                   <input type="email" id="email" name="email" required
                          class="form-control border-start-0" autocomplete="email" />
                 </div>
+                <div id="erro-email" class="form-text text-danger d-none"></div>
               </div>
 
               <!-- Senha -->
@@ -73,6 +74,13 @@
                   </span>
                   <input type="password" id="password" name="password" required
                          class="form-control border-start-0" autocomplete="new-password" />
+                </div>
+                <!-- Barra de força da senha — atualizada em tempo real pelo TypeScript -->
+                <div id="forca-senha" class="forca-senha d-none">
+                  <div class="forca-senha-barra">
+                    <div id="forca-senha-preenchimento" class="forca-senha-preenchimento"></div>
+                  </div>
+                  <span id="forca-senha-rotulo" class="forca-senha-rotulo"></span>
                 </div>
                 <ul class="regras-senha">
                   <li>Mínimo de 8 caracteres</li>
@@ -92,6 +100,7 @@
                   <input type="password" id="password_confirm" name="password_confirm" required
                          class="form-control border-start-0" autocomplete="new-password" />
                 </div>
+                <div id="erro-senha-confirm" class="form-text text-danger d-none"></div>
               </div>
 
               <p id="mensagem-erro" class="erro"></p>

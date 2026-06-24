@@ -297,10 +297,11 @@ async function inicializarCabecalho(): Promise<void> {
 
         if (resposta.ok) {
             const usuario: DadosUsuario = await resposta.json();
-            // Persiste o tipo no localStorage para uso nas demais telas
+            // Persiste o tipo e o primeiro nome no localStorage para uso nas demais telas
             if (usuario.tipo) {
                 localStorage.setItem("tipo", usuario.tipo);
             }
+            localStorage.setItem("first_name", usuario.first_name);
             renderizarCabecalhoLogado(usuario);
         } else {
             // Token inválido ou expirado — limpa o armazenamento local

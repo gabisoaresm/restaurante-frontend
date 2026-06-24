@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Editar Item — Restaurante</title>
+  <title>Editar Item — Cucina Italiana</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" />
   <link rel="stylesheet" href="css/estilos.css" />
@@ -39,6 +39,7 @@
                 <label for="descricao" class="form-label fw-semibold">Descrição *</label>
                 <textarea id="descricao" name="descricao" required rows="3"
                           class="form-control" placeholder="Descrição detalhada do item"></textarea>
+                <div id="contador-descricao" class="form-text text-end text-muted">0 / 300 caracteres</div>
               </div>
 
               <!-- Preço e Categoria lado a lado -->
@@ -57,11 +58,18 @@
                 </div>
               </div>
 
-              <!-- Imagem atual (pré-visualização, populada via JS) -->
+              <!-- Imagem atual em formato real: mesmas classes e largura do card do cardápio -->
               <div id="preview-imagem-atual" class="mb-3 d-none">
                 <p class="form-label fw-semibold mb-1">Foto atual</p>
-                <img id="img-atual" src="" alt="Foto atual do item"
-                     class="rounded border" style="max-height:140px; object-fit:cover;" />
+                <div class="card shadow-sm border-0" style="max-width: 300px; overflow: hidden;">
+                  <img id="img-atual" src="" alt="Foto atual do item"
+                       class="card-img-top card-img-item w-100" />
+                </div>
+                <!-- Botão para excluir a foto atual — aciona remoção no envio do formulário -->
+                <button type="button" id="btn-excluir-imagem"
+                        class="btn btn-sm btn-outline-danger mt-2">
+                  <i class="bi bi-trash me-1"></i>Excluir foto
+                </button>
               </div>
 
               <!-- Upload de nova imagem -->
@@ -73,6 +81,14 @@
                        class="form-control" />
                 <div class="form-text text-muted">
                   Opcional. Deixe em branco para manter a foto atual.
+                </div>
+              </div>
+
+              <!-- Pré-visualização em formato real: mesmas classes e largura do card do cardápio -->
+              <div id="preview-imagem-nova" class="mb-3 d-none">
+                <div class="card shadow-sm border-0" style="max-width: 300px; overflow: hidden;">
+                  <img id="img-preview-nova" src="" alt="Pré-visualização da foto"
+                       class="card-img-top card-img-item w-100" />
                 </div>
               </div>
 

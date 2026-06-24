@@ -103,12 +103,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // Busca pedidos do backend aplicando os filtros ativos de status e data
-    async function carregarPedidos(): Promise<void> {
+    // Busca pedidos do backend aplicando os filtros ativos de status e data.
+    // Quando silencioso=true, omite o spinner e os erros para não interromper o atendente.
+    async function carregarPedidos(silencioso: boolean = false): Promise<void> {
         renderizarFiltros();
-        divCarregando.classList.remove("d-none");
-        divLista.innerHTML = "";
-        pErro.textContent  = "";
+        if (!silencioso) {
+            divCarregando.classList.remove("d-none");
+            divLista.innerHTML = "";
+        }
+        pErro.textContent = "";
 
         // Monta a query string com os filtros selecionados
         const params = new URLSearchParams();
@@ -126,29 +129,35 @@ document.addEventListener("DOMContentLoaded", async () => {
             ]);
 
             if (resPedidos.status === 403) {
-                pErro.textContent = "Acesso negado. Apenas atendentes e gerentes podem ver a fila de pedidos.";
-                divCarregando.classList.add("d-none");
+                if (!silencioso) {
+                    pErro.textContent = "Acesso negado. Apenas atendentes e gerentes podem ver a fila de pedidos.";
+                    divCarregando.classList.add("d-none");
+                }
                 return;
             }
             if (!resPedidos.ok) {
-                pErro.textContent = "Não foi possível carregar os pedidos.";
-                divCarregando.classList.add("d-none");
+                if (!silencioso) {
+                    pErro.textContent = "Não foi possível carregar os pedidos.";
+                    divCarregando.classList.add("d-none");
+                }
                 return;
             }
 
-            const pedidos: PedidoResposta[]     = await resPedidos.json();
+            const pedidos: PedidoResposta[]         = await resPedidos.json();
             const cardapioItens: ItemCardapioInfo[] = await resItens.json();
 
             // Mapa id → nome do item para resolver os nomes dos itens do pedido
             const itemMap = new Map<number, string>();
             for (const item of cardapioItens) itemMap.set(item.id, item.nome);
 
-            divCarregando.classList.add("d-none");
+            if (!silencioso) divCarregando.classList.add("d-none");
             renderizarPedidos(pedidos, itemMap);
 
         } catch {
-            divCarregando.classList.add("d-none");
-            pErro.textContent = "Não foi possível conectar ao servidor.";
+            if (!silencioso) {
+                divCarregando.classList.add("d-none");
+                pErro.textContent = "Não foi possível conectar ao servidor.";
+            }
         }
     }
 
@@ -281,4 +290,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Carregamento inicial da fila
     void carregarPedidos();
+
+    // Atualiza a fila automaticamente a cada 30 segundos sem recarregar a página.
+    // O modo silencioso evita piscar o spinner enquanto o atendente interage com a tela.
+    setInterval(() => { void carregarPedidos(true); }, 30_000);
 });

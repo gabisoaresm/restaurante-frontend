@@ -6,16 +6,13 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "index.html";
         return;
     }
-    // Exibe mensagem de sucesso quando o usuário chega vindo de registro ou redefinição de senha
+    // Exibe toast de sucesso quando o usuário chega vindo de registro ou redefinição de senha
     const params = new URLSearchParams(window.location.search);
-    const msgSucesso = document.getElementById("mensagem-sucesso");
-    if (msgSucesso) {
-        if (params.get("cadastro") === "ok") {
-            msgSucesso.textContent = "Cadastro realizado com sucesso! Faça login para continuar.";
-        }
-        else if (params.get("senha_redefinida") === "ok") {
-            msgSucesso.textContent = "Senha redefinida com sucesso! Faça login com a nova senha.";
-        }
+    if (params.get("cadastro") === "ok") {
+        mostrarToast("Cadastro realizado com sucesso! Faça login para continuar.");
+    }
+    else if (params.get("senha_redefinida") === "ok") {
+        mostrarToast("Senha redefinida com sucesso! Faça login com a nova senha.");
     }
     const form = document.getElementById("form-login");
     const msgErro = document.getElementById("mensagem-erro");

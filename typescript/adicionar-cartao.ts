@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputVal     = document.getElementById("validade")          as HTMLInputElement;
     const inputCvv     = document.getElementById("cvv")               as HTMLInputElement;
     const pErro        = document.getElementById("mensagem-erro")     as HTMLParagraphElement;
-    const pSucesso     = document.getElementById("mensagem-sucesso")  as HTMLParagraphElement;
     const btnSalvar    = document.getElementById("btn-salvar")        as HTMLButtonElement;
 
     // Remove destaque de erro ao redigitar nos campos com .campo wrapper
@@ -49,8 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     form.addEventListener("submit", async (e: Event) => {
         e.preventDefault();
-        pErro.textContent    = "";
-        pSucesso.textContent = "";
+        pErro.textContent = "";
 
         // Validação local — destaca campos obrigatórios não preenchidos
         let invalido = false;

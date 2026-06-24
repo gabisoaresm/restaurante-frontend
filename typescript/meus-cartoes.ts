@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     let modalCartaoConfigurado = false;
-    let cartaoExclusaoPendente: { id: number; apelido: string } | null = null;
+    let cartaoExclusaoPendente: { id: number; apelido: string; col: HTMLElement } | null = null;
 
     // HTML do modal de confirmação — Bootstrap CSS only (sem bootstrap.bundle.js)
     function htmlModalRemoverCartao(): string {
@@ -102,12 +102,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         cartaoExclusaoPendente = null;
     }
 
-    function abrirModalRemoverCartao(id: number, apelido: string): void {
+    function abrirModalRemoverCartao(id: number, apelido: string, col: HTMLElement): void {
         if (!document.getElementById("modal-remover-cartao")) {
             document.body.insertAdjacentHTML("beforeend", htmlModalRemoverCartao());
             configurarEventosModalCartao();
         }
-        cartaoExclusaoPendente = { id, apelido };
+        cartaoExclusaoPendente = { id, apelido, col };
         const span = document.getElementById("modal-remover-cartao-apelido");
         if (span) span.textContent = apelido;
         const btnConfirmar = document.getElementById("btn-confirmar-remover-cartao") as HTMLButtonElement | null;
@@ -139,8 +139,26 @@ document.addEventListener("DOMContentLoaded", async () => {
                 headers: { "Authorization": `${TOKEN_PREFIXO} ${token}` }
             });
             if (res.status === 204) {
+                const colRemovida = cartaoExclusaoPendente!.col;
                 fecharModalRemoverCartao();
-                window.location.reload();
+                // Remove o card do DOM diretamente — sem recarregar a página
+                colRemovida.remove();
+                // Se não houver mais cartões, exibe o estado vazio
+                if (divLista.querySelectorAll(".col-12").length === 0) {
+                    divLista.innerHTML = `
+                        <div class="col-12">
+                          <div class="card shadow-sm border-0">
+                            <div class="card-body text-center py-5">
+                              <i class="bi bi-credit-card fs-2 text-muted d-block mb-3"></i>
+                              <p class="fw-semibold mb-1">Você ainda não tem cartões salvos.</p>
+                              <p class="text-muted small mb-3">Adicione um cartão para agilizar seus pagamentos.</p>
+                              <a href="adicionar-cartao.html" class="btn btn-danger">
+                                <i class="bi bi-plus-lg me-1"></i>Adicionar Cartão
+                              </a>
+                            </div>
+                          </div>
+                        </div>`;
+                }
             } else {
                 pErro.textContent = "Não foi possível remover o cartão.";
                 fecharModalRemoverCartao();
@@ -239,10 +257,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                   </div>
                 </div>`;
 
-            // Vincula o botão de exclusão ao modal de confirmação
+            // Vincula o botão de exclusão ao modal de confirmação, passando o col para remoção sem reload
             col.querySelector(".btn-excluir")!.addEventListener("click", (e) => {
                 const btn = e.currentTarget as HTMLButtonElement;
-                abrirModalRemoverCartao(Number(btn.dataset.id), btn.dataset.apelido ?? "");
+                abrirModalRemoverCartao(Number(btn.dataset.id), btn.dataset.apelido ?? "", col);
             });
 
             divLista.appendChild(col);

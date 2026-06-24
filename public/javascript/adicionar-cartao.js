@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputVal = document.getElementById("validade");
     const inputCvv = document.getElementById("cvv");
     const pErro = document.getElementById("mensagem-erro");
-    const pSucesso = document.getElementById("mensagem-sucesso");
     const btnSalvar = document.getElementById("btn-salvar");
     // Remove destaque de erro ao redigitar nos campos com .campo wrapper
     form.querySelectorAll(".campo input, .campo select").forEach(el => {
@@ -45,7 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
         var _a, _b, _c, _d;
         e.preventDefault();
         pErro.textContent = "";
-        pSucesso.textContent = "";
         // Validação local — destaca campos obrigatórios não preenchidos
         let invalido = false;
         const obrigatorios = [inputApelido, inputTitular, inputNumero, inputVal, inputCvv];

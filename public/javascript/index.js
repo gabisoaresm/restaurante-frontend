@@ -1,5 +1,37 @@
 "use strict";
 // Dashboard personalizado da página inicial — adapta o conteúdo ao tipo de perfil do usuário
+// Ordem desejada das abas no cardápio público
+const ORDEM_CATEGORIAS_INDEX = ["entradas", "pratos principais", "sobremesas", "bebidas"];
+// Ordena as categorias de acordo com ORDEM_CATEGORIAS_INDEX; não listadas vão ao final
+function ordenarCategoriasIndex(cats) {
+    return [...cats].sort((a, b) => {
+        const ia = ORDEM_CATEGORIAS_INDEX.indexOf(a.nome.toLowerCase());
+        const ib = ORDEM_CATEGORIAS_INDEX.indexOf(b.nome.toLowerCase());
+        if (ia === -1 && ib === -1)
+            return 0;
+        if (ia === -1)
+            return 1;
+        if (ib === -1)
+            return -1;
+        return ia - ib;
+    });
+}
+// Ativa a aba indicada e exibe apenas a seção correspondente no conteúdo
+// O título (h6) de cada seção só aparece em "Todas" — nas abas individuais já está no tab
+function ativarAbaVisitante(catId, botoes, divLista) {
+    botoes.forEach(btn => {
+        const ativo = btn.dataset["cat"] === catId;
+        btn.classList.toggle("active", ativo);
+        btn.setAttribute("aria-selected", String(ativo));
+    });
+    divLista.querySelectorAll("section[data-cat-id]").forEach(secao => {
+        const visivel = catId === "todas" || secao.dataset["catId"] === catId;
+        secao.classList.toggle("d-none", !visivel);
+        const titulo = secao.querySelector("h6");
+        if (titulo)
+            titulo.classList.toggle("d-none", catId !== "todas");
+    });
+}
 // Aguarda autenticacao.ts terminar de renderizar o cabeçalho para que localStorage.tipo esteja disponível
 function aguardarCabecalhoIndex() {
     return new Promise(resolve => {
@@ -50,38 +82,45 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!token || !tipo) {
         // Visitante não autenticado — exibe hero compacto e cardápio em modo somente leitura
         divVisitante.classList.remove("d-none");
-        const divFiltros = document.getElementById("filtros-visitante");
+        const divAbas = document.getElementById("abas-visitante");
         const divCarregandoMenu = document.getElementById("carregando-cardapio-visitante");
         const pErroMenu = document.getElementById("erro-cardapio-visitante");
         const divLista = document.getElementById("lista-itens-visitante");
-        const params = new URLSearchParams(window.location.search);
-        const categoriaAtiva = params.get("categoria");
         try {
-            // Busca categorias e itens em paralelo — endpoints públicos, sem autenticação
+            // Busca categorias e todos os itens em paralelo — endpoints públicos, sem autenticação
             const [resCateg, resItens] = await Promise.all([
                 fetch(`${BASE_URL}/api/cardapio/categorias/`),
-                fetch(categoriaAtiva
-                    ? `${BASE_URL}/api/cardapio/itens/?categoria=${categoriaAtiva}`
-                    : `${BASE_URL}/api/cardapio/itens/`)
+                fetch(`${BASE_URL}/api/cardapio/itens/`)
             ]);
-            const categorias = await resCateg.json();
+            const categoriasRaw = await resCateg.json();
             const todosItens = await resItens.json();
-            // Visitante vê apenas itens marcados como disponíveis
+            // Aplica a ordem desejada e filtra apenas itens disponíveis
+            const categorias = ordenarCategoriasIndex(categoriasRaw);
             const itens = todosItens.filter(item => item.disponivel);
-            // Monta pills de filtro por categoria — links relativos para suportar ?categoria=<id>
-            const paginaBase = window.location.pathname;
-            const pillTodas = document.createElement("a");
-            pillTodas.href = paginaBase;
-            pillTodas.className = `btn btn-sm ${!categoriaAtiva ? "btn-dark" : "btn-outline-dark"}`;
-            pillTodas.textContent = "Todas";
-            divFiltros.appendChild(pillTodas);
+            // Monta as abas: primeiro "Todas", depois uma aba por categoria
+            const liTodas = document.createElement("li");
+            liTodas.className = "nav-item";
+            liTodas.innerHTML = `
+                <button type="button" class="nav-link active"
+                        data-cat="todas" role="tab" aria-selected="true">
+                  Todas
+                </button>`;
+            divAbas.appendChild(liTodas);
             for (const cat of categorias) {
-                const pill = document.createElement("a");
-                pill.href = `${paginaBase}?categoria=${cat.id}`;
-                pill.className = `btn btn-sm ${categoriaAtiva === String(cat.id) ? "btn-secondary" : "btn-outline-secondary"}`;
-                pill.textContent = cat.nome;
-                divFiltros.appendChild(pill);
+                const li = document.createElement("li");
+                li.className = "nav-item";
+                li.innerHTML = `
+                    <button type="button" class="nav-link"
+                            data-cat="${cat.id}" role="tab" aria-selected="false">
+                      ${cat.nome}
+                    </button>`;
+                divAbas.appendChild(li);
             }
+            // Vincula os eventos de troca de aba a todos os botões recém-criados
+            const botoesAba = divAbas.querySelectorAll("button[data-cat]");
+            botoesAba.forEach(btn => {
+                btn.addEventListener("click", () => ativarAbaVisitante(btn.dataset["cat"], botoesAba, divLista));
+            });
             divCarregandoMenu.classList.add("d-none");
             if (itens.length === 0) {
                 divLista.innerHTML = `
@@ -93,7 +132,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     </div>`;
                 return;
             }
-            // Agrupa os itens por categoria respeitando a ordem retornada pelo backend
+            // Agrupa os itens por categoria respeitando a ordem já aplicada
             const itensPorCategoria = new Map();
             for (const cat of categorias) {
                 itensPorCategoria.set(cat.id, { nome: cat.nome, itens: [] });
@@ -102,11 +141,12 @@ document.addEventListener("DOMContentLoaded", async () => {
                 (_a = itensPorCategoria.get(item.categoria)) === null || _a === void 0 ? void 0 : _a.itens.push(item);
             }
             // Renderiza uma seção por categoria com cards somente leitura (sem stepper nem ações)
-            for (const [, { nome: catNome, itens: itensCategoria }] of itensPorCategoria) {
+            for (const [catId, { nome: catNome, itens: itensCategoria }] of itensPorCategoria) {
                 if (itensCategoria.length === 0)
                     continue;
                 const secao = document.createElement("section");
                 secao.className = "mb-5";
+                secao.dataset["catId"] = String(catId);
                 secao.innerHTML = `
                     <h6 class="fw-semibold text-uppercase text-muted mb-3"
                         style="font-size: .7rem; letter-spacing: .07em;">

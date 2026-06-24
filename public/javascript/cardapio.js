@@ -1,6 +1,22 @@
 "use strict";
-// Exibe o cardápio público por categoria; clientes selecionam quantidades diretamente
-// no card (fluxo de carrinho); gerentes veem controles de gestão de itens
+// Exibe o cardápio público por categoria com navegação em abas; clientes selecionam
+// quantidades diretamente no card (fluxo de carrinho); gerentes veem controles de gestão
+// Ordem desejada das abas no cardápio — categorias fora da lista ficam ao final
+const ORDEM_CATEGORIAS = ["entradas", "pratos principais", "sobremesas", "bebidas"];
+// Ordena as categorias de acordo com ORDEM_CATEGORIAS; não listadas vão ao final
+function ordenarCategorias(cats) {
+    return [...cats].sort((a, b) => {
+        const ia = ORDEM_CATEGORIAS.indexOf(a.nome.toLowerCase());
+        const ib = ORDEM_CATEGORIAS.indexOf(b.nome.toLowerCase());
+        if (ia === -1 && ib === -1)
+            return 0;
+        if (ia === -1)
+            return 1;
+        if (ib === -1)
+            return -1;
+        return ia - ib;
+    });
+}
 // Aguarda o cabeçalho ser renderizado pelo autenticacao.ts para garantir
 // que o tipo do usuário já foi persistido no localStorage
 function aguardarCabecalho() {
@@ -106,7 +122,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("token");
     const divCarregando = document.getElementById("carregando");
     const divLista = document.getElementById("lista-itens");
-    const divFiltros = document.getElementById("filtros-categoria");
+    const divAbas = document.getElementById("abas-categoria");
     const pErro = document.getElementById("mensagem-erro");
     let modalItemConfigurado = false;
     let itemExclusaoPendente = null;
@@ -192,6 +208,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     // Remove o item do cardápio via DELETE na API após confirmação no modal
     async function executarExclusaoItem() {
+        var _a, _b;
         if (!itemExclusaoPendente)
             return;
         const { id, btn } = itemExclusaoPendente;
@@ -207,12 +224,20 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
             if (res.status === 204) {
                 fecharModalExcluirItem();
-                // Remove o card; se a seção ficou vazia, remove a seção inteira
+                // Remove o card; se a seção ficou vazia, remove a seção inteira e a aba correspondente
                 const col = document.querySelector(`[data-item-id="${id}"]`);
                 const secao = col === null || col === void 0 ? void 0 : col.closest("section");
                 col === null || col === void 0 ? void 0 : col.remove();
                 if (secao && secao.querySelectorAll("[data-item-id]").length === 0) {
+                    const catId = secao.dataset["catId"];
                     secao.remove();
+                    // Remove a aba da categoria que ficou vazia
+                    (_b = (_a = divAbas.querySelector(`button[data-cat="${catId}"]`)) === null || _a === void 0 ? void 0 : _a.closest("li")) === null || _b === void 0 ? void 0 : _b.remove();
+                    // Volta para a aba "Todas" se a aba excluída estava ativa
+                    const botoesAba = divAbas.querySelectorAll("button[data-cat]");
+                    const nenhumaAtiva = !divAbas.querySelector("button[data-cat].active");
+                    if (nenhumaAtiva && botoesAba.length > 0)
+                        ativarAba("todas", botoesAba);
                 }
             }
             else if (res.status === 403) {
@@ -227,7 +252,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 btn.disabled = false;
             }
         }
-        catch (_a) {
+        catch (_c) {
             pErro.textContent = "Não foi possível conectar ao servidor.";
             fecharModalExcluirItem();
             btn.disabled = false;
@@ -248,6 +273,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             const modal = document.getElementById("modal-excluir-item");
             if (modal === null || modal === void 0 ? void 0 : modal.classList.contains("show"))
                 fecharModalExcluirItem();
+        });
+    }
+    // Ativa a aba indicada e exibe apenas a seção correspondente no conteúdo
+    function ativarAba(catId, botoes) {
+        botoes.forEach(btn => {
+            const ativo = btn.dataset["cat"] === catId;
+            btn.classList.toggle("active", ativo);
+            btn.setAttribute("aria-selected", String(ativo));
+        });
+        // Mostra todas as seções na aba "todas"; caso contrário, filtra pela categoria
+        // O título (h6) de cada seção só aparece em "Todas" — nas abas individuais já está no tab
+        divLista.querySelectorAll("section[data-cat-id]").forEach(secao => {
+            const visivel = catId === "todas" || secao.dataset["catId"] === catId;
+            secao.classList.toggle("d-none", !visivel);
+            const titulo = secao.querySelector("h6");
+            if (titulo)
+                titulo.classList.toggle("d-none", catId !== "todas");
         });
     }
     // Exibe botões de gestão apenas para gerentes autenticados
@@ -280,41 +322,47 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Inicializa a barra com o estado atual do carrinho (pode ter itens de sessão anterior)
         atualizarBarraCarrinho();
     }
-    // Lê o filtro de categoria da URL (ex.: cardapio.html?categoria=2)
-    const params = new URLSearchParams(window.location.search);
-    const categoriaAtiva = params.get("categoria");
     try {
-        // Busca categorias e itens em paralelo (ambos de acesso público)
+        // Busca categorias e todos os itens em paralelo (ambos de acesso público)
         const [resCateg, resItens] = await Promise.all([
             fetch(`${BASE_URL}/api/cardapio/categorias/`),
-            fetch(categoriaAtiva
-                ? `${BASE_URL}/api/cardapio/itens/?categoria=${categoriaAtiva}`
-                : `${BASE_URL}/api/cardapio/itens/`)
+            fetch(`${BASE_URL}/api/cardapio/itens/`)
         ]);
-        const categorias = await resCateg.json();
+        const categoriasRaw = await resCateg.json();
         const todosItens = await resItens.json();
+        // Aplica a ordem desejada nas categorias
+        const categorias = ordenarCategorias(categoriasRaw);
         // Clientes veem apenas itens disponíveis para pedido;
         // gerentes veem todos os itens para poder gerenciar os indisponíveis
         const itens = tipo === "gerente"
             ? todosItens
             : todosItens.filter(item => item.disponivel);
-        // Monta pills de filtro por categoria — links relativos à página atual para
-        // funcionar tanto em index.html quanto em cardapio.html sem redirecionamento
-        const paginaBase = window.location.pathname;
-        const pillTodas = document.createElement("a");
-        pillTodas.href = paginaBase;
-        pillTodas.className = `btn btn-sm ${!categoriaAtiva ? "btn-dark" : "btn-outline-dark"}`;
-        pillTodas.textContent = "Todas";
-        divFiltros.appendChild(pillTodas);
-        for (const cat of categorias) {
-            const pill = document.createElement("a");
-            pill.href = `${paginaBase}?categoria=${cat.id}`;
-            pill.className = `btn btn-sm ${categoriaAtiva === String(cat.id) ? "btn-secondary" : "btn-outline-secondary"}`;
-            pill.textContent = cat.nome;
-            divFiltros.appendChild(pill);
-        }
         divCarregando.classList.add("d-none");
-        // Agrupa os itens por categoria respeitando a ordem retornada pelo backend
+        // Monta as abas: primeiro "Todas", depois uma aba por categoria
+        const liTodas = document.createElement("li");
+        liTodas.className = "nav-item";
+        liTodas.innerHTML = `
+            <button type="button" class="nav-link active"
+                    data-cat="todas" role="tab" aria-selected="true">
+              Todas
+            </button>`;
+        divAbas.appendChild(liTodas);
+        for (const cat of categorias) {
+            const li = document.createElement("li");
+            li.className = "nav-item";
+            li.innerHTML = `
+                <button type="button" class="nav-link"
+                        data-cat="${cat.id}" role="tab" aria-selected="false">
+                  ${cat.nome}
+                </button>`;
+            divAbas.appendChild(li);
+        }
+        // Vincula os eventos de troca de aba a todos os botões recém-criados
+        const botoesAba = divAbas.querySelectorAll("button[data-cat]");
+        botoesAba.forEach(btn => {
+            btn.addEventListener("click", () => ativarAba(btn.dataset["cat"], botoesAba));
+        });
+        // Agrupa os itens por categoria respeitando a ordem já aplicada
         const itensPorCategoria = new Map();
         for (const cat of categorias) {
             itensPorCategoria.set(cat.id, { nome: cat.nome, itens: [] });
@@ -335,7 +383,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         // Carrega o carrinho do localStorage para pré-preencher as quantidades nos steppers
         const carrinhoAtual = carregarCarrinho();
-        // Renderiza uma seção por categoria, com título e grade de cards
+        // Renderiza uma seção por categoria com título e grade de cards
+        // Todas as seções ficam visíveis na aba "Todas" (aba inicial)
         for (const [catId, { nome: catNome, itens: itensCategoria }] of itensPorCategoria) {
             if (itensCategoria.length === 0)
                 continue;

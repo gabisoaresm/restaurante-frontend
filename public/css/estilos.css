@@ -669,6 +669,59 @@ body {
 }
 
 
+/* ── Abas de categoria do cardápio ────────────────────────────────────────── */
+
+/* Scroll horizontal em mobile sem mostrar scrollbar */
+.nav-categorias-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.nav-categorias-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+/* Sobrescreve o azul padrão do Bootstrap nas nav-tabs do cardápio */
+#abas-categoria,
+#abas-visitante {
+  flex-wrap: nowrap;
+  border-bottom: 2px solid var(--borda);
+  gap: 0.25rem;
+}
+
+#abas-categoria .nav-link,
+#abas-visitante .nav-link {
+  white-space: nowrap;
+  color: var(--texto);
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  border-radius: 0;
+  padding: 0.5rem 1rem;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+#abas-categoria .nav-link:hover,
+#abas-categoria .nav-link:focus,
+#abas-visitante .nav-link:hover,
+#abas-visitante .nav-link:focus {
+  color: var(--vermelho);
+  border-bottom-color: rgba(139, 26, 26, 0.35);
+  background: none;
+  outline: none;
+  box-shadow: none;
+}
+
+#abas-categoria .nav-link.active,
+#abas-visitante .nav-link.active {
+  color: var(--vermelho);
+  font-weight: 600;
+  border-bottom: 2px solid var(--vermelho);
+  background: none;
+}
+
+
 /* ── Páginas em construção (placeholders) ─────────────────────────────────── */
 
 .placeholder {

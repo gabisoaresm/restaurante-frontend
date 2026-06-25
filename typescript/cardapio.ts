@@ -241,19 +241,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
             if (res.status === 204) {
                 fecharModalExcluirItem();
-                // Remove o card; se a seção ficou vazia, remove a seção inteira e a aba correspondente
+                // Remove o card; se a seção ficou vazia, remove só a seção (a aba da categoria permanece)
                 const col   = document.querySelector(`[data-item-id="${id}"]`);
                 const secao = col?.closest("section");
                 col?.remove();
                 if (secao && secao.querySelectorAll("[data-item-id]").length === 0) {
-                    const catId = secao.dataset["catId"];
                     secao.remove();
-                    // Remove a aba da categoria que ficou vazia
-                    divAbas.querySelector(`button[data-cat="${catId}"]`)?.closest("li")?.remove();
-                    // Volta para a aba "Todas" se a aba excluída estava ativa
-                    const botoesAba = divAbas.querySelectorAll<HTMLButtonElement>("button[data-cat]");
-                    const nenhumaAtiva = !divAbas.querySelector("button[data-cat].active");
-                    if (nenhumaAtiva && botoesAba.length > 0) ativarAba("todas", botoesAba);
+                }
+                // Se não restou nenhum item no cardápio, exibe o estado vazio
+                if (divLista.querySelectorAll("[data-item-id]").length === 0) {
+                    divLista.innerHTML = `
+                        <div class="card shadow-sm border-0">
+                          <div class="card-body text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-2 d-block mb-2"></i>
+                            Nenhum item encontrado.
+                          </div>
+                        </div>`;
                 }
             } else if (res.status === 403) {
                 pErro.textContent = "Apenas gerentes podem excluir itens do cardápio.";

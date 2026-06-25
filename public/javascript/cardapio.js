@@ -208,7 +208,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     // Remove o item do cardápio via DELETE na API após confirmação no modal
     async function executarExclusaoItem() {
-        var _a, _b;
         if (!itemExclusaoPendente)
             return;
         const { id, btn } = itemExclusaoPendente;
@@ -224,20 +223,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             });
             if (res.status === 204) {
                 fecharModalExcluirItem();
-                // Remove o card; se a seção ficou vazia, remove a seção inteira e a aba correspondente
+                // Remove o card; se a seção ficou vazia, remove só a seção (a aba da categoria permanece)
                 const col = document.querySelector(`[data-item-id="${id}"]`);
                 const secao = col === null || col === void 0 ? void 0 : col.closest("section");
                 col === null || col === void 0 ? void 0 : col.remove();
                 if (secao && secao.querySelectorAll("[data-item-id]").length === 0) {
-                    const catId = secao.dataset["catId"];
                     secao.remove();
-                    // Remove a aba da categoria que ficou vazia
-                    (_b = (_a = divAbas.querySelector(`button[data-cat="${catId}"]`)) === null || _a === void 0 ? void 0 : _a.closest("li")) === null || _b === void 0 ? void 0 : _b.remove();
-                    // Volta para a aba "Todas" se a aba excluída estava ativa
-                    const botoesAba = divAbas.querySelectorAll("button[data-cat]");
-                    const nenhumaAtiva = !divAbas.querySelector("button[data-cat].active");
-                    if (nenhumaAtiva && botoesAba.length > 0)
-                        ativarAba("todas", botoesAba);
+                }
+                // Se não restou nenhum item no cardápio, exibe o estado vazio
+                if (divLista.querySelectorAll("[data-item-id]").length === 0) {
+                    divLista.innerHTML = `
+                        <div class="card shadow-sm border-0">
+                          <div class="card-body text-center py-5 text-muted">
+                            <i class="bi bi-journal-x fs-2 d-block mb-2"></i>
+                            Nenhum item encontrado.
+                          </div>
+                        </div>`;
                 }
             }
             else if (res.status === 403) {
@@ -252,7 +253,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 btn.disabled = false;
             }
         }
-        catch (_c) {
+        catch (_a) {
             pErro.textContent = "Não foi possível conectar ao servidor.";
             fecharModalExcluirItem();
             btn.disabled = false;

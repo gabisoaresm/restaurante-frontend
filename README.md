@@ -69,7 +69,7 @@ Tem acesso completo ao sistema: gerencia categorias e itens do cardápio (inclui
 
 ![Cardápio — visão do gerente com botões de gerenciamento](docs/screenshots/cardapio-gerente.png)
 
-**Dashboard do cliente após login — acesso rápido a pedidos, cartões e perfil:**
+**Dashboard do cliente após login — acesso rápido ao cardápio, ao acompanhamento de seus pedidos e ao seu perfil:**
 
 ![Dashboard do cliente com acesso rápido a pedidos e cartões](docs/screenshots/dashboard-cliente.png)
 
@@ -153,7 +153,7 @@ Acesse: [http://localhost:8080](http://localhost:8080)
 O cadastro pelo site cria sempre um perfil de **Cliente**. Para criar um Gerente:
 
 **Via Django Admin do backend:**
-1. Acesse `http://localhost:8000/admin/` com o superusuário do backend
+1. Acesse /admin/ com o superusuário do backend
 2. Crie ou edite um usuário
 3. Em *Perfils*, altere o tipo para `gerente`
 
@@ -343,4 +343,4 @@ Recebido → Em Preparo → Pronto → Entregue
 
 ## Link do Site Publicado
 
-[Adicionar URL do site publicado]
+[https://cucinaitaliana.onrender.com/](https://cucinaitaliana.onrender.com/)
